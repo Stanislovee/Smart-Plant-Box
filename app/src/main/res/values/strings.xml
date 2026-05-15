@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Smart Plant Box</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="language">Language</string>
+
+    <!-- Bottom Navigation -->
+    <string name="bottom_nav_home">Home</string>
+    <string name="bottom_nav_statistic">Statistic</string>
+    <string name="bottom_nav_images">Images</string>
+    <string name="bottom_nav_profile">Profile</string>
+
+    <!-- Welcome Screen -->
+    <string name="welcome_to">Welcome to</string>
+    <string name="app_name_short">SmartPlantBox</string>
+    <string name="welcome_description">Press "Get Started" and let your smart pot handle watering</string>
+    <string name="get_started">Get Started</string>
+
+    <!-- Login Screen -->
+    <string name="welcome_plants">Welcome Plants</string>
+    <string name="login_to_your_account">Login to your account</string>
+    <string name="remember_me">Remember me</string>
+    <string name="forget_password">Forget Password?</string>
+    <string name="dont_have_an_account">Don\'t have an account?</string>
+    <string name="no_spaces_allowed">No spaces allowed</string>
+    <string name="login_button">Login</string>
+    <string name="sign_up_button">Sign up</string>
+
+    <!-- Forgot Password Email Screen -->
+    <string name="forgot">Forgot</string>
+    <string name="password_question">Password?</string>
+    <string name="forgot_password_description">Don\'t worry! It happens. Please enter the email address we will send the new password in this email address.</string>
+    <string name="secure_encrypted">Secure &amp; Encrypted</string>
+    <string name="continue_button">Continue</string>
+    <string name="back_icon">Back</string>
+    <string name="secure_icon">Secure</string>
+
+    <!-- Forgot Password Code Screen -->
+    <string name="code">Code</string>
+    <string name="verification">Verification</string>
+    <string name="enter_code_description">Enter the code we sent to</string>
+    <string name="dont_receive_code">Don\'t receive code?</string>
+    <string name="resend">Re-send</string>
+    <string name="wait_seconds">Wait %ds</string>
+    <string name="send_code">Send code</string>
+    <string name="back_button_code">Back</string>
+
+    <!-- Forgot Password New Password Screen -->
+    <string name="create_your">Create your</string>
+    <string name="new_password_title">new password</string>
+    <string name="new_password_label">New Password</string>
+    <string name="confirm_password_label">Confirm Password</string>
+    <string name="set_password_button">Set a password</string>
+    <string name="back_button_new_password">Back</string>
+    <string name="lock_icon_desc">Lock Icon</string>
+    <string name="hide_password_desc">Hide password</string>
+    <string name="show_password_desc">Show password</string>
+    <string name="minimum_8_chars_no_spaces">Minimum 8 characters, no spaces allowed</string>
+<!--    <string name="confirm_your_password_hint">Confirm your password</string>-->
+
+    <!-- Register Screen -->
+    <string name="register">Register</string>
+    <string name="create_your_new_account">Create your new account</string>
+    <string name="full_name_hint">Full Name</string>
+    <string name="email_hint">Email</string>
+    <string name="password_hint">Password</string>
+    <string name="confirm_password_hint">Confirm Password</string>
+    <string name="minimum_8_characters_no_spaces_hint">Minimum 8 characters, no spaces allowed</string>
+    <string name="confirm_your_password_hint">Confirm your password</string>
+    <string name="by_signing_you_agree_to_our">By signing you agree to our</string>
+    <string name="term_of_use">term of use</string>
+    <string name="and">and</string>
+    <string name="privacy">privacy</string>
+    <string name="sign_up">Sign up</string>
+    <string name="already_have_an_account">Already have an account?</string>
+    <string name="login">Login</string>
+    <string name="person_icon">Person Icon</string>
+    <string name="email_icon">Email Icon</string>
+    <string name="lock_icon">Lock Icon</string>
+    <string name="hide_password">Hide password</string>
+    <string name="show_password">Show password</string>
+    <string name="back_button">Back</string>
+
+    <!-- Terms of Use Dialog -->
+    <string name="terms_of_use_title">Terms of Use</string>
+    <string name="terms_acceptance_title">1. Acceptance of Terms</string>
+    <string name="terms_acceptance_text">By using Smart Plant Box, you agree to these terms. If you disagree, please do not use our service.</string>
+    <string name="terms_account_registration_title">2. Account Registration</string>
+    <string name="terms_account_registration_text">You must provide accurate information. You are responsible for maintaining the security of your account.</string>
+    <string name="terms_device_usage_title">3. Device Usage</string>
+    <string name="terms_device_usage_text">Smart Plant Box devices are for personal use only. Do not modify or misuse the hardware.</string>
+    <string name="terms_data_collection_title">4. Data Collection</string>
+    <string name="terms_data_collection_text">We collect sensor data to provide plant care recommendations. Your privacy is important to us.</string>
+    <string name="terms_termination_title">5. Termination</string>
+    <string name="terms_termination_text">We reserve the right to terminate accounts that violate these terms.</string>
+    <string name="terms_changes_title">6. Changes to Terms</string>
+    <string name="terms_changes_text">We may update these terms. Continued use means acceptance of changes.</string>
+    <string name="terms_contact_title">7. Contact</string>
+    <string name="terms_contact_text">For questions: support@smartplantbox.com</string>
+    <string name="i_understand">I Understand</string>
+
+    <!-- Privacy Notice Dialog -->
+    <string name="privacy_notice_title">Privacy Notice</string>
+    <string name="privacy_info_collect_title">1. Information We Collect</string>
+    <string name="privacy_info_collect_text">• Account information (name, email)\n• Device sensor data (temperature, humidity, light, soil moisture)\n• Usage patterns and preferences</string>
+    <string name="privacy_use_info_title">2. How We Use Your Information</string>
+    <string name="privacy_use_info_text">• Provide plant care recommendations\n• Improve our products and services\n• Send important notifications\n• Analyze usage trends</string>
+    <string name="privacy_data_sharing_title">3. Data Sharing</string>
+    <string name="privacy_data_sharing_text">We do not sell your personal data. We may share data with:\n• Service providers (hosting, analytics)\n• Legal authorities when required by law</string>
+    <string name="privacy_data_security_title">4. Data Security</string>
+    <string name="privacy_data_security_text">We use encryption and secure servers to protect your data. However, no internet transmission is 100% secure.</string>
+    <string name="privacy_your_rights_title">5. Your Rights</string>
+    <string name="privacy_your_rights_text">• Access and update your data\n• Delete your account\n• Opt out of marketing emails\n• Request data export</string>
+    <string name="privacy_data_retention_title">6. Data Retention</string>
+    <string name="privacy_data_retention_text">We keep your data while your account is active. After deletion, data is removed within 30 days.</string>
+    <string name="privacy_contact_title">7. Contact Us</string>
+    <string name="privacy_contact_text">Privacy questions: privacy@smartplantbox.com</string>
+
+    <!-- Home screen -->
+    <string name="home_title">Home</string>
+    <string name="no_device">No Device Connected</string>
+    <string name="no_device_desc">Click the button below to connect your first smart pot</string>
+    <string name="connect_device">Connect Device</string>
+    <string name="add_more_device">Add more device</string>
+    <string name="connect_first_device">Connect First Device</string>
+    <string name="active">Active</string>
+    <string name="inactive">Inactive</string>
+    <string name="device_key">Device Key</string>
+    <string name="enter_device_key">Enter device key (e.g., 8zL2Xq10521)</string>
+    <string name="max_11_chars">Max 11 characters (letters and numbers only)</string>
+    <string name="connect">Connect</string>
+    <string name="edit_device_name">Edit Device Name</string>
+    <string name="device_name">Device Name</string>
+    <string name="max_16_chars">Max 16 characters (letters, numbers and spaces only)</string>
+    <string name="name_cannot_be_empty">Name cannot be empty</string>
+    <string name="delete_device_title">Delete Device</string>
+    <string name="delete_device_confirm">Are you sure you want to delete \"%s\"? This action cannot be undone.</string>
+    <string name="connect_your_first_device">Connect Your First Device</string>
+    <string name="add_new_device">Add New Device</string>
+    <string name="enter_device_serial_number">Enter Device Serial Number (Key)</string>
+    <string name="enter_device_key_placeholder">Enter device key (e.g., 8zL2Xq10521)</string>
+    <string name="max_11_characters">Maximum 11 characters</string>
+    <string name="add">Add</string>
+    <string name="view_details">View Details</string>
+    <string name="background">Background</string>
+    <string name="card_background">Card Background</string>
+    <string name="device_icon">Device Icon</string>
+    <string name="delete_device">Delete Device</string>
+    <string name="settings_current_potty">Settings Current Potty</string>
+    <string name="no_device_icon">No Device</string>
+    <string name="failed_to_bind_device">Failed to bind device</string>
+    <string name="failed_to_unbind_device">Failed to unbind device</string>
+
+    <!-- Plant Guides -->
+    <string name="onion">Onion</string>
+    <string name="garlic">Garlic</string>
+    <string name="cucumber">Cucumber</string>
+    <string name="tomato">Tomato</string>
+    <string name="carrot">Carrot</string>
+
+    <string name="onion_description">A versatile bulb vegetable, essential in many dishes. Easy to grow in containers.</string>
+    <string name="garlic_description">A pungent bulb vegetable, known for its health benefits and strong flavor.</string>
+    <string name="cucumber_description">A refreshing vine vegetable, perfect for salads and pickling.</string>
+    <string name="tomato_description">A juicy fruit-vegetable, rich in vitamins and perfect for sauces and salads.</string>
+    <string name="carrot_description">A crunchy root vegetable, rich in beta-carotene and great for health.</string>
+
+    <string name="onion_guide_title">🌱 Onion Growing Guide</string>
+    <string name="garlic_guide_title">🌱 Garlic Growing Guide</string>
+    <string name="cucumber_guide_title">🌱 Cucumber Growing Guide</string>
+    <string name="tomato_guide_title">🌱 Tomato Growing Guide</string>
+    <string name="carrot_guide_title">🌱 Carrot Growing Guide</string>
+
+    <string name="onion_guide">📌 Planting: Plant onion sets or seeds in early spring.\n💧 Water: Keep soil moist but not waterlogged.\n☀️ Light: Full sun (6-8 hours daily).\n🌡️ Temperature: 13-24°C (55-75°F).\n🌱 Soil: Well-draining, fertile soil with compost.\n⏰ Harvest: When tops fall over and turn brown (90-120 days).</string>
+    <string name="garlic_guide">📌 Planting: Plant garlic cloves pointy side up in fall.\n💧 Water: Water moderately, keep soil slightly moist.\n☀️ Light: Full sun (6-8 hours daily).\n🌡️ Temperature: 10-25°C (50-77°F).\n🌱 Soil: Loose, well-draining soil rich in organic matter.\n⏰ Harvest: When lower leaves turn brown (8-9 months).</string>
+    <string name="cucumber_guide">📌 Planting: Sow seeds directly after frost or start indoors.\n💧 Water: Keep soil consistently moist, water at base.\n☀️ Light: Full sun (6-8 hours daily).\n🌡️ Temperature: 18-29°C (65-85°F).\n🌱 Soil: Rich, well-draining soil with compost.\n⏰ Harvest: When fruits are firm and green (50-70 days).</string>
+    <string name="tomato_guide">📌 Planting: Start seeds indoors 6-8 weeks before last frost.\n💧 Water: Water deeply and regularly, avoid wetting leaves.\n☀️ Light: Full sun (6-8 hours daily).\n🌡️ Temperature: 18-27°C (65-80°F).\n🌱 Soil: Rich, well-draining soil with compost.\n⏰ Harvest: When fruits are fully colored and slightly soft (60-85 days).</string>
+    <string name="carrot_guide">📌 Planting: Sow seeds directly in loose soil in spring.\n💧 Water: Keep soil consistently moist for germination.\n☀️ Light: Full sun to partial shade.\n🌡️ Temperature: 10-24°C (50-75°F).\n🌱 Soil: Loose, sandy soil free of rocks.\n⏰ Harvest: When tops are 1-2 cm in diameter (60-80 days).</string>
+
+    <string name="guide">📖 Guide</string>
+    <string name="close">Close</string>
+
+    <!-- Pot Settings Screen -->
+    <string name="pot_settings">Pot Settings</string>
+    <string name="back">Back</string>
+    <string name="device_info">Device Info</string>
+    <string name="sn">SN</string>
+<!--    <string name="update">Update</string>-->
+    <string name="air_temperature">Air Temperature</string>
+<!--    <string name="air_humidity">Air Humidity</string>-->
+<!--    <string name="light">Light</string>-->
+    <string name="current_lighting_level">Current lighting level</string>
+    <string name="on">On</string>
+    <string name="off">Off</string>
+    <string name="set_light_threshold">Set light threshold</string>
+    <string name="your_light_threshold">Your light threshold</string>
+    <string name="lamp_status_label">Supplemental lighting</string>
+<!--    <string name="soil_moisture">Soil moisture</string>-->
+    <string name="current_soil_moisture">Current soil moisture</string>
+    <string name="water_tank">Water tank</string>
+    <string name="watering">Watering</string>
+    <string name="set_soil_moisture">Set soil moisture</string>
+    <string name="your_soil_moisture">Your soil moisture</string>
+    <string name="set_the_settings">Set the settings</string>
+    <string name="failed_to_load_device_data">Failed to load device data</string>
+    <string name="device_data_updated_successfully">✅ Device data updated successfully</string>
+    <string name="failed_to_update_device_data">Failed to update device data</string>
+    <string name="data_has_been_successfully_saved">✅ Data has been successfully saved</string>
+    <string name="failed_to_set_light_threshold">Failed to set light threshold</string>
+    <string name="failed_to_set_soil_humidity">Failed to set soil humidity</string>
+    <string name="failed_to_set_lamp_status">Failed to set lamp status</string>
+    <string name="failed_to_reload_device_data">Failed to reload device data</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <!-- Pot Settings Screen card Dialog-->
+
+    <string name="light_dialog_title">Light Threshold Settings</string>
+    <string name="light_dialog_short">Set the light level (0–100%) at which the lamp turns on automatically.</string>
+    <string name="light_dialog_description">This setting controls automatic lighting. Choose a value below which the plant lacks light.\n\nExample: at 40%, when brightness drops below this level, the LED lamp turns on.\n\n• 0% — Lamp always OFF\n• 100% — Lamp always ON</string>
+    <string name="light_dialog_recommendation">📌 How to adjust:\nObserve the daily cycle. Set the threshold so that the lamp supports the plant on cloudy days or extends the day by a few hours in the evening.\n\n💡 Optimal threshold for most houseplants: 40-50%</string>
+    <string name="light_dialog_current">💡 Current light level: %d%%</string>
+
+    <string name="soil_dialog_title">Soil Moisture Settings</string>
+    <string name="soil_dialog_short">Set the moisture level (0–100%) that triggers watering.</string>
+    <string name="soil_dialog_description">Automatic watering activates when soil moisture drops 2% below the set threshold.\n\nThe device waters for 2 minutes, then waits 5 minutes for moisture absorption. If the threshold is still not reached, the cycle repeats until the selected value is achieved.</string>
+    <string name="soil_dialog_recommendation">📌 How to adjust (The "Finger Method"):\n\n1. Wait until the soil is dry at a depth of 2-3 cm\n2. Check the reading in the app\n3. Set the threshold 5% higher — this will be the ideal moment to start watering</string>
+    <string name="soil_dialog_water_tank">💧 Water tank</string>
+    <string name="soil_dialog_watering">🚰 Watering</string>
+    <string name="soil_dialog_current_threshold">💡 Current moisture threshold: %d%%</string>
+
+    <string name="got_it">Got it</string>
+
+
+    <!-- Profile Screen -->
+    <string name="profile_settings">Profile Settings</string>
+    <string name="hello">Hello</string>
+    <string name="you_have_devices">You have %d device(s) currently on</string>
+    <string name="full_name">Full Name</string>
+    <string name="email">Email</string>
+    <string name="your_password">Your Password</string>
+    <string name="set_new_password">Set new password</string>
+    <string name="current_password">Current Password</string>
+    <string name="new_password">New Password</string>
+    <string name="confirm_new_password">Confirm New Password</string>
+    <string name="save_the_settings">Save the settings</string>
+    <string name="logout">Logout</string>
+    <string name="are_you_sure_logout">Are you sure you want to logout?</string>
+    <string name="minimum_8_characters_no_spaces">Minimum 8 characters, no spaces allowed</string>
+    <string name="confirm_your_password">Confirm your password</string>
+    <string name="current_password_required">Current password is required</string>
+    <string name="new_password_required">New password is required</string>
+    <string name="please_confirm_password">Please confirm your new password</string>
+    <string name="current_password_cannot_contain_spaces">Current password cannot contain spaces</string>
+    <string name="new_password_cannot_contain_spaces">New password cannot contain spaces</string>
+    <string name="confirm_password_cannot_contain_spaces">Confirm password cannot contain spaces</string>
+    <string name="password_must_be_8_characters">Password must be at least 8 characters</string>
+    <string name="passwords_do_not_match">Passwords do not match</string>
+    <string name="current_password_incorrect">Current password is incorrect</string>
+    <string name="failed_to_change_password">Failed to change password</string>
+    <string name="name_updated_successfully">Name updated successfully</string>
+    <string name="failed_to_update_name">Failed to update name</string>
+    <string name="password_changed_successfully">Password changed successfully! Please login again.</string>
+    <string name="minimum_25_characters">Maximum 25 characters</string>
+    <string name="maximum_16_characters">Maximum 16 characters</string>
+
+    <!-- Image Screen -->
+    <string name="plant_gallery">Plant Gallery</string>
+    <string name="photos_from_smart_pot">Photos from your Smart Pot</string>
+    <string name="device">Device</string>
+    <string name="refresh">Refresh</string>
+    <string name="auto_capture_interval">Auto Capture Interval</string>
+    <string name="current">Current</string>
+    <string name="every_hours">every hour(s)</string>
+    <string name="hours">hours</string>
+    <string name="take_photo_now">Take a Photo Now</string>
+    <string name="capture_current_plant_state">Capture current plant state</string>
+    <string name="gallery">Gallery</string>
+    <string name="photo">photo</string>
+    <string name="photos">photos</string>
+    <string name="no_photos_yet">No photos yet</string>
+    <string name="take_first_photo">Take your first photo or wait for auto-capture</string>
+    <string name="interval_updated">Interval updated successfully</string>
+    <string name="photo_captured">📸 Photo captured!</string>
+    <string name="failed_to_load_image">Failed to load image</string>
+    <string name="user_not_logged_in">User not logged in</string>
+    <string name="failed_to_load_data">Failed to load data</string>
+    <string name="failed_to_load_devices">Failed to load devices</string>
+    <string name="failed_to_set_interval">Failed to set interval</string>
+    <string name="failed_to_capture_photo">Failed to capture photo</string>
+    <string name="network_error">Network error</string>
+    <string name="interval_set_to">Interval set to every %d hour(s)</string>
+
+    <!-- Photo Guide Dialog -->
+    <string name="photo_guide_title">Photo Gallery Guide</string>
+    <string name="photo_guide_content">This section helps you manage photos of your plants captured by the Smart Pot.</string>
+    <string name="photo_guide_take_photo">📸 Take a Photo Now\nTap the large green card below to instantly capture the current state of your plant. After taking a photo, scroll down to see it appear in the gallery.</string>
+    <string name="photo_guide_gallery">🖼️ Photo Gallery\nAll captured photos are displayed below, sorted by date. You can tap any photo to view it full screen.</string>
+    <string name="photo_guide_auto_interval">⏱️ Auto Capture Interval\nYou can set the device to automatically take photos at regular intervals:</string>
+    <string name="photo_guide_interval_list">• Available intervals: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 24 hours</string>
+    <string name="photo_guide_how_to_save">💾 How to save:\n1. Select the desired interval from the dropdown list\n2. Tap the green square button with the floppy disk icon to save your settings</string>
+    <string name="photo_guide_note">📌 After changing the interval, wait a moment for the settings to synchronize with your device.</string>
+
+    <!-- Stats Screen -->
+    <string name="statistics">Statistics</string>
+    <string name="period">Period</string>
+    <string name="day">Day</string>
+    <string name="week">Week</string>
+    <string name="month">Month</string>
+    <string name="all">All</string>
+    <string name="custom">Custom</string>
+    <string name="metric">Metric</string>
+    <string name="temperature">Temperature</string>
+    <string name="air_humidity">Air Humidity</string>
+    <string name="soil_moisture">Soil Moisture</string>
+    <string name="light">Light</string>
+    <string name="showing_records">Showing %d-%d of %d records</string>
+    <string name="zoom_out">Zoom Out (-)</string>
+    <string name="zoom_in">Zoom In (+)</string>
+    <string name="average">Average</string>
+    <string name="min">Min</string>
+    <string name="max">Max</string>
+    <string name="change">Change</string>
+    <string name="recent_records">Recent Records</string>
+    <string name="no_data_available">No data available</string>
+    <string name="connect_device_wait">Connect your device and wait for data collection</string>
+    <string name="no_data_for_period">No data for selected period</string>
+    <string name="select_start_date">Select Start Date</string>
+    <string name="select_end_date">Select End Date</string>
+    <string name="switch_to_end_date">Switch to End Date</string>
+    <string name="switch_to_start_date">Switch to Start Date</string>
+    <string name="start_date">Start Date</string>
+    <string name="end_date">End Date</string>
+    <string name="previous_month">Previous Month</string>
+    <string name="next_month">Next Month</string>
+    <string name="mon">Mon</string>
+    <string name="tue">Tue</string>
+    <string name="wed">Wed</string>
+    <string name="thu">Thu</string>
+    <string name="fri">Fri</string>
+    <string name="sat">Sat</string>
+    <string name="sun">Sun</string>
+    <string name="selected">Selected</string>
+    <string name="next">Next</string>
+    <string name="apply">Apply</string>
+    <string name="clear">Clear</string>
+    <string name="update">Update</string>
+    <string name="data_updated_successfully">✅ Data updated successfully</string>
+    <string name="failed_to_update_data">Failed to update data</string>
+    <string name="failed_to_load_history">Failed to load history</string>
+    <string name="lamp_on">Lamp: On</string>
+    <string name="lamp_off">Lamp: Off</string>
+    <string name="water_yes">Water: Yes</string>
+    <string name="water_no">Water: No</string>
+    <string name="watering_on">Watering: On</string>
+    <string name="watering_off">Watering: Off</string>
+    <string name="celsius">°C</string>
+    <string name="percent">%</string>
+
+    <!-- Period Info Dialog -->
+    <string name="period_info_title">Filtering Statistics by Date</string>
+    <string name="period_info_content">You can filter the chart and statistics using the buttons below:</string>
+    <string name="period_info_day">• Day — shows data only for today</string>
+    <string name="period_info_week">• Week — shows data from the last 7 days</string>
+    <string name="period_info_month">• Month — shows data from the last 30 days</string>
+    <string name="period_info_all">• All — shows all available historical data</string>
+    <string name="period_info_custom">• Custom — allows you to select a specific date range</string>
+    <string name="period_info_how_to">📌 How to use Custom range:\n\n1. Tap Custom (Inny) — a calendar will open\n2. Select the start date → tap Next\n3. Select the end date → tap Apply\n\nThe chart will then display data from the start date to the day before the end date (e.g., 03.05.2026 – 10.05.2026 shows data from 03.05 to 09.05).</string>
+    <string name="period_info_note">Only data recorded during the selected period will be shown in the chart and statistics.</string>
+</resources>

@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Smart Plant Box</string>
+    <string name="save">Zapisz</string>
+    <string name="cancel">Anuluj</string>
+    <string name="delete">Usuń</string>
+    <string name="edit">Edytuj</string>
+    <string name="language">Język</string>
+
+    <!-- Bottom Navigation -->
+    <string name="bottom_nav_home">Strona główna</string>
+    <string name="bottom_nav_statistic">Statystyki</string>
+    <string name="bottom_nav_images">Zdjęcia</string>
+    <string name="bottom_nav_profile">Profil</string>
+
+    <!-- Welcome Screen -->
+    <string name="welcome_to">Witaj w</string>
+    <string name="app_name_short">SmartPlantBox</string>
+    <string name="welcome_description">Naciśnij „Rozpocznij”, a Twoja inteligentna doniczka zajmie się podlewaniem</string>
+    <string name="get_started">Rozpocznij</string>
+
+    <!-- Login Screen -->
+    <string name="welcome_plants">Witaj Rośliny</string>
+    <string name="login_to_your_account">Zaloguj się na swoje konto</string>
+    <string name="remember_me">Zapamiętaj mnie</string>
+    <string name="forget_password">Zapomniałeś hasła?</string>
+    <string name="dont_have_an_account">Nie masz konta?</string>
+    <string name="no_spaces_allowed">Bez spacji</string>
+    <string name="login_button">Zaloguj się</string>
+    <string name="sign_up_button">Zarejestruj się</string>
+
+    <!-- Forgot Password Email Screen -->
+    <string name="forgot">Zapomniałeś</string>
+    <string name="password_question">hasła?</string>
+    <string name="forgot_password_description">Nie martw się! To się zdarza. Wprowadź adres e-mail, na który wyślemy nowe hasło.</string>
+    <string name="secure_encrypted">Bezpieczne i szyfrowane</string>
+    <string name="continue_button">Kontynuuj</string>
+    <string name="back_icon">Wstecz</string>
+    <string name="secure_icon">Bezpieczne</string>
+
+    <!-- Forgot Password Code Screen -->
+    <string name="code">Kod</string>
+    <string name="verification">Weryfikacja</string>
+    <string name="enter_code_description">Wprowadź kod, który wysłaliśmy na</string>
+    <string name="dont_receive_code">Nie otrzymałeś kodu?</string>
+    <string name="resend">Wyślij ponownie</string>
+    <string name="wait_seconds">Odczekaj %ds</string>
+    <string name="send_code">Wyślij kod</string>
+    <string name="back_button_code">Wstecz</string>
+
+    <!-- Forgot Password New Password Screen -->
+    <string name="create_your">Utwórz swoje</string>
+    <string name="new_password_title">nowe hasło</string>
+    <string name="new_password_label">Nowe hasło</string>
+    <string name="confirm_password_label">Potwierdź hasło</string>
+    <string name="set_password_button">Ustaw hasło</string>
+    <string name="back_button_new_password">Wstecz</string>
+    <string name="lock_icon_desc">Ikona kłódki</string>
+    <string name="hide_password_desc">Ukryj hasło</string>
+    <string name="show_password_desc">Pokaż hasło</string>
+    <string name="minimum_8_chars_no_spaces">Minimum 8 znaków, bez spacji</string>
+<!--    <string name="confirm_your_password_hint">Potwierdź swoje hasło</string>-->
+
+    <!-- Register Screen -->
+    <string name="register">Rejestracja</string>
+    <string name="create_your_new_account">Utwórz swoje nowe konto</string>
+    <string name="full_name_hint">Pełna nazwa</string>
+    <string name="email_hint">Email</string>
+    <string name="password_hint">Hasło</string>
+    <string name="confirm_password_hint">Potwierdź hasło</string>
+    <string name="minimum_8_characters_no_spaces_hint">Minimum 8 znaków, bez spacji</string>
+    <string name="confirm_your_password_hint">Potwierdź swoje hasło</string>
+    <string name="by_signing_you_agree_to_our">Rejestrując się, zgadzasz się na nasze</string>
+    <string name="term_of_use">warunki użytkowania</string>
+    <string name="and">i</string>
+    <string name="privacy">politykę prywatności</string>
+    <string name="sign_up">Zarejestruj się</string>
+    <string name="already_have_an_account">Masz już konto?</string>
+    <string name="login">Zaloguj się</string>
+    <string name="person_icon">Ikona osoby</string>
+    <string name="email_icon">Ikona emaila</string>
+    <string name="lock_icon">Ikona kłódki</string>
+    <string name="hide_password">Ukryj hasło</string>
+    <string name="show_password">Pokaż hasło</string>
+    <string name="back_button">Wstecz</string>
+
+    <!-- Terms of Use Dialog -->
+    <string name="terms_of_use_title">Warunki użytkowania</string>
+    <string name="terms_acceptance_title">1. Akceptacja warunków</string>
+    <string name="terms_acceptance_text">Korzystając z Smart Plant Box, zgadzasz się na te warunki. Jeśli się nie zgadzasz, nie korzystaj z naszej usługi.</string>
+    <string name="terms_account_registration_title">2. Rejestracja konta</string>
+    <string name="terms_account_registration_text">Musisz podać dokładne informacje. Jesteś odpowiedzialny za zachowanie bezpieczeństwa swojego konta.</string>
+    <string name="terms_device_usage_title">3. Użytkowanie urządzenia</string>
+    <string name="terms_device_usage_text">Urządzenia Smart Plant Box są przeznaczone wyłącznie do użytku osobistego. Nie modyfikuj ani nie nadużywaj sprzętu.</string>
+    <string name="terms_data_collection_title">4. Gromadzenie danych</string>
+    <string name="terms_data_collection_text">Zbieramy dane z czujników, aby zapewnić zalecenia dotyczące pielęgnacji roślin. Twoja prywatność jest dla nas ważna.</string>
+    <string name="terms_termination_title">5. Rozwiązanie umowy</string>
+    <string name="terms_termination_text">Zastrzegamy sobie prawo do rozwiązania kont, które naruszają te warunki.</string>
+    <string name="terms_changes_title">6. Zmiany warunków</string>
+    <string name="terms_changes_text">Możemy aktualizować te warunki. Dalsze korzystanie oznacza akceptację zmian.</string>
+    <string name="terms_contact_title">7. Kontakt</string>
+    <string name="terms_contact_text">Pytania: support@smartplantbox.com</string>
+    <string name="i_understand">Rozumiem</string>
+
+    <!-- Privacy Notice Dialog -->
+    <string name="privacy_notice_title">Polityka prywatności</string>
+    <string name="privacy_info_collect_title">1. Informacje, które zbieramy</string>
+    <string name="privacy_info_collect_text">• Informacje o koncie (nazwa, email)\n• Dane z czujników urządzenia (temperatura, wilgotność, światło, wilgotność gleby)\n• Wzorce użytkowania i preferencje</string>
+    <string name="privacy_use_info_title">2. Jak wykorzystujemy Twoje informacje</string>
+    <string name="privacy_use_info_text">• Zapewnianie zaleceń dotyczących pielęgnacji roślin\n• Ulepszanie naszych produktów i usług\n• Wysyłanie ważnych powiadomień\n• Analiza trendów użytkowania</string>
+    <string name="privacy_data_sharing_title">3. Udostępnianie danych</string>
+    <string name="privacy_data_sharing_text">Nie sprzedajemy Twoich danych osobowych. Możemy udostępniać dane:\n• Dostawcom usług (hosting, analityka)\n• Władzom prawnym, gdy wymaga tego prawo</string>
+    <string name="privacy_data_security_title">4. Bezpieczeństwo danych</string>
+    <string name="privacy_data_security_text">Używamy szyfrowania i bezpiecznych serwerów do ochrony Twoich danych. Jednak żaden transfer w Internecie nie jest w 100% bezpieczny.</string>
+    <string name="privacy_your_rights_title">5. Twoje prawa</string>
+    <string name="privacy_your_rights_text">• Dostęp i aktualizacja danych\n• Usunięcie konta\n• Rezygnacja z e-maili marketingowych\n• Żądanie eksportu danych</string>
+    <string name="privacy_data_retention_title">6. Przechowywanie danych</string>
+    <string name="privacy_data_retention_text">Przechowujemy Twoje dane, dopóki Twoje konto jest aktywne. Po usunięciu dane są usuwane w ciągu 30 dni.</string>
+    <string name="privacy_contact_title">7. Kontakt</string>
+    <string name="privacy_contact_text">Pytania dotyczące prywatności: privacy@smartplantbox.com</string>
+
+    <!-- Home screen -->
+    <string name="home_title">Strona główna</string>
+    <string name="no_device">Brak podłączonego urządzenia</string>
+    <string name="no_device_desc">Kliknij przycisk poniżej, aby podłączyć pierwszą inteligentną doniczkę</string>
+    <string name="connect_device">Podłącz urządzenie</string>
+    <string name="add_more_device">Dodaj kolejne urządzenie</string>
+    <string name="connect_first_device">Podłącz pierwsze urządzenie</string>
+    <string name="active">Aktywny</string>
+    <string name="inactive">Nieaktywny</string>
+    <string name="device_key">Klucz urządzenia</string>
+    <string name="enter_device_key">Wprowadź klucz urządzenia (np. 8zL2Xq10521)</string>
+    <string name="max_11_chars">Maks. 11 znaków (tylko litery i cyfry)</string>
+    <string name="connect">Połącz</string>
+    <string name="edit_device_name">Edytuj nazwę urządzenia</string>
+    <string name="device_name">Nazwa urządzenia</string>
+    <string name="max_16_chars">Maks. 16 znaków (tylko litery, cyfry i spacje)</string>
+    <string name="name_cannot_be_empty">Nazwa nie może być pusta</string>
+    <string name="delete_device_title">Usuń urządzenie</string>
+    <string name="delete_device_confirm">Czy na pewno chcesz usunąć \"%s\"? Tej operacji nie można cofnąć.</string>
+    <string name="connect_your_first_device">Podłącz swoje pierwsze urządzenie</string>
+    <string name="add_new_device">Dodaj nowe urządzenie</string>
+    <string name="enter_device_serial_number">Wprowadź numer seryjny urządzenia (klucz)</string>
+    <string name="enter_device_key_placeholder">Wprowadź klucz urządzenia (np. 8zL2Xq10521)</string>
+    <string name="max_11_characters">Maksymalnie 11 znaków</string>
+    <string name="add">Dodaj</string>
+    <string name="view_details">Zobacz szczegóły</string>
+    <string name="background">Tło</string>
+    <string name="card_background">Tło karty</string>
+    <string name="device_icon">Ikona urządzenia</string>
+    <string name="delete_device">Usuń urządzenie</string>
+    <string name="settings_current_potty">Ustawienia obecnej doniczki</string>
+    <string name="no_device_icon">Brak urządzenia</string>
+    <string name="failed_to_bind_device">Nie udało się podłączyć urządzenia</string>
+    <string name="failed_to_unbind_device">Nie udało się odłączyć urządzenia</string>
+
+    <!-- Plant Guides -->
+    <string name="onion">Cebula</string>
+    <string name="garlic">Czosnek</string>
+    <string name="cucumber">Ogórek</string>
+    <string name="tomato">Pomidor</string>
+    <string name="carrot">Marchewka</string>
+
+    <string name="onion_description">Wszechstronne warzywo cebulowe, niezbędne w wielu daniach. Łatwe w uprawie w pojemnikach.</string>
+    <string name="garlic_description">Ostre warzywo cebulowe, znane ze swoich właściwości zdrowotnych i intensywnego smaku.</string>
+    <string name="cucumber_description">Orzeźwiające warzywo pnące, idealne do sałatek i kiszenia.</string>
+    <string name="tomato_description">Soczyste warzywo owocowe, bogate w witaminy, idealne do sosów i sałatek.</string>
+    <string name="carrot_description">Chrupiące warzywo korzeniowe, bogate w beta-karoten, doskonałe dla zdrowia.</string>
+
+    <string name="onion_guide_title">🌱 Przewodnik uprawy Cebuli</string>
+    <string name="garlic_guide_title">🌱 Przewodnik uprawy Czosnku</string>
+    <string name="cucumber_guide_title">🌱 Przewodnik uprawy Ogórka</string>
+    <string name="tomato_guide_title">🌱 Przewodnik uprawy Pomidora</string>
+    <string name="carrot_guide_title">🌱 Przewodnik uprawy Marchewki</string>
+
+    <string name="onion_guide">📌 Sadzenie: Sadź dymkę lub nasiona wczesną wiosną.\n💧 Podlewanie: Utrzymuj glebę wilgotną, ale nie mokrą.\n☀️ Światło: Pełne słońce (6-8 godzin dziennie).\n🌡️ Temperatura: 13-24°C.\n🌱 Gleba: Przepuszczalna, żyzna gleba z kompostem.\n⏰ Zbiór: Gdy liście przewrócą się i zbrązowieją (90-120 dni).</string>
+    <string name="garlic_guide">📌 Sadzenie: Sadź ząbki czosnku czubkiem do góry jesienią.\n💧 Podlewanie: Podlewaj umiarkowanie, gleba lekko wilgotna.\n☀️ Światło: Pełne słońce (6-8 godzin dziennie).\n🌡️ Temperatura: 10-25°C.\n🌱 Gleba: Luźna, przepuszczalna, bogata w materię organiczną.\n⏰ Zbiór: Gdy dolne liście zbrązowieją (8-9 miesięcy).</string>
+    <string name="cucumber_guide">📌 Sadzenie: Wysiewaj nasiona bezpośrednio po przymrozkach lub w pomieszczeniu.\n💧 Podlewanie: Utrzymuj glebę stale wilgotną, podlewaj u podstawy.\n☀️ Światło: Pełne słońce (6-8 godzin dziennie).\n🌡️ Temperatura: 18-29°C.\n🌱 Gleba: Żyzna, przepuszczalna gleba z kompostem.\n⏰ Zbiór: Gdy owoce są jędrne i zielone (50-70 dni).</string>
+    <string name="tomato_guide">📌 Sadzenie: Rozpocznij nasiona w pomieszczeniu 6-8 tygodni przed ostatnimi przymrozkami.\n💧 Podlewanie: Podlewaj obficie i regularnie, unikaj moczenia liści.\n☀️ Światło: Pełne słońce (6-8 godzin dziennie).\n🌡️ Temperatura: 18-27°C.\n🌱 Gleba: Żyzna, przepuszczalna gleba z kompostem.\n⏰ Zbiór: Gdy owoce są w pełni wybarwione i lekko miękkie (60-85 dni).</string>
+    <string name="carrot_guide">📌 Sadzenie: Wysiewaj nasiona bezpośrednio w luźną glebę wiosną.\n💧 Podlewanie: Utrzymuj glebę stale wilgotną do kiełkowania.\n☀️ Światło: Pełne słońce do półcienia.\n🌡️ Temperatura: 10-24°C.\n🌱 Gleba: Luźna, piaszczysta gleba bez kamieni.\n⏰ Zbiór: Gdy górna część korzenia ma 1-2 cm średnicy (60-80 dni).</string>
+
+    <string name="guide">Przewodnik</string>
+    <string name="close">Zamknij</string>
+
+    <!-- Pot Settings Screen -->
+    <string name="pot_settings">Ustawienia doniczki</string>
+    <string name="back">Wstecz</string>
+    <string name="device_info">Informacje o urządzeniu</string>
+    <string name="sn">SN</string>
+<!--    <string name="update">Aktualizuj</string>-->
+    <string name="air_temperature">Temperatura powietrza</string>
+<!--    <string name="air_humidity">Wilgotność powietrza</string>-->
+<!--    <string name="light">Światło</string>-->
+    <string name="current_lighting_level">Bieżący poziom światła</string>
+    <string name="on">Wł.</string>
+    <string name="off">Wył.</string>
+    <string name="set_light_threshold">Ustaw próg światła</string>
+    <string name="your_light_threshold">Twój próg światła</string>
+    <string name="lamp_status_label">Doświetlanie</string>
+<!--    <string name="soil_moisture">Wilgotność gleby</string>-->
+    <string name="current_soil_moisture">Bieżąca wilgotność gleby</string>
+    <string name="water_tank">Zbiornik wody</string>
+    <string name="watering">Podlewanie</string>
+    <string name="set_soil_moisture">Ustaw wilgotność gleby</string>
+    <string name="your_soil_moisture">Twoja wilgotność gleby</string>
+    <string name="set_the_settings">Zapisz ustawienia</string>
+    <string name="failed_to_load_device_data">Nie udało się załadować danych urządzenia</string>
+    <string name="device_data_updated_successfully">✅ Dane urządzenia zaktualizowane pomyślnie</string>
+    <string name="failed_to_update_device_data">Nie udało się zaktualizować danych urządzenia</string>
+    <string name="data_has_been_successfully_saved">✅ Dane zostały pomyślnie zapisane</string>
+    <string name="failed_to_set_light_threshold">Nie udało się ustawić progu światła</string>
+    <string name="failed_to_set_soil_humidity">Nie udało się ustawić wilgotności gleby</string>
+    <string name="failed_to_set_lamp_status">Nie udało się ustawić statusu lampy</string>
+    <string name="failed_to_reload_device_data">Nie udało się przeładować danych urządzenia</string>
+    <string name="yes">Tak</string>
+    <string name="no">Nie</string>
+    <!-- Pot Settings Screen Dialogs  -->
+    <string name="light_dialog_title">Ustawienia progu światła</string>
+    <string name="light_dialog_short">Ustaw poziom oświetlenia (0–100%), przy którym lampa włączy się automatycznie.</string>
+    <string name="light_dialog_description">To ustawienie odpowiada za automatyczne sterowanie oświetleniem. Wybierz wartość, poniżej której roślinie brakuje światła.\n\nPrzykład: przy ustawieniu 40%, gdy jasność spadnie poniżej tego poziomu, włączy się lampa LED.\n\n• 0% — Lampa zawsze WYŁĄCZONA\n• 100% — Lampa zawsze WŁĄCZONA</string>
+    <string name="light_dialog_recommendation">📌 Jak prawidłowo dobrać wartości:\nObserwuj cykl dobowy. Ustaw próg tak, aby lampa wspomagała roślinę w pochmurne dni lub przedłużała dzień o kilka godzin wieczorem.\n\n💡 Optymalny próg dla większości roślin domowych: 40-50%</string>
+    <string name="light_dialog_current">💡 Bieżący poziom światła: %d%%</string>
+
+    <string name="soil_dialog_title">Ustawienia wilgotności gleby</string>
+    <string name="soil_dialog_short">Ustaw poziom wilgotności (0–100%), po którego przekroczeniu włączy się podlewanie.</string>
+    <string name="soil_dialog_description">Automatyczne podlewanie aktywuje się, gdy wilgotność gleby spadnie o 2% poniżej ustawionego progu.\n\nUrządzenie włącza podlewanie na 2 minuty, po czym czeka 5 minut na wchłonięcie wilgoci. Jeśli próg nadal nie zostanie osiągnięty, cykl powtarza się aż do uzyskania wybranej wartości.</string>
+    <string name="soil_dialog_recommendation">📌 Jak prawidłowo dobrać wartości (Metoda "Palca"):\n\n1. Poczekaj, aż gleba będzie sucha na głębokości 2-3 cm\n2. Sprawdź wtedy odczyt w aplikacji\n3. Ustaw próg o 5% wyższy — to będzie idealny moment na start podlewania</string>
+    <string name="soil_dialog_water_tank">💧 Zbiornik wody</string>
+    <string name="soil_dialog_watering">🚰 Podlewanie</string>
+    <string name="soil_dialog_current_threshold">💡 Bieżący próg wilgotności: %d%%</string>
+
+    <string name="got_it">Rozumiem</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_settings">Ustawienia profilu</string>
+    <string name="hello">Witaj</string>
+    <string name="you_have_devices">Masz aktualnie %d urządzenie(a)</string>
+    <string name="full_name">Pełna nazwa</string>
+    <string name="email">Email</string>
+    <string name="your_password">Twoje hasło</string>
+    <string name="set_new_password">Ustaw nowe hasło</string>
+    <string name="current_password">Obecne hasło</string>
+    <string name="new_password">Nowe hasło</string>
+    <string name="confirm_new_password">Potwierdź nowe hasło</string>
+    <string name="save_the_settings">Zapisz ustawienia</string>
+    <string name="logout">Wyloguj się</string>
+    <string name="are_you_sure_logout">Czy na pewno chcesz się wylogować?</string>
+    <string name="minimum_8_characters_no_spaces">Minimum 8 znaków, bez spacji</string>
+    <string name="confirm_your_password">Potwierdź swoje hasło</string>
+    <string name="current_password_required">Obecne hasło jest wymagane</string>
+    <string name="new_password_required">Nowe hasło jest wymagane</string>
+    <string name="please_confirm_password">Potwierdź nowe hasło</string>
+    <string name="current_password_cannot_contain_spaces">Obecne hasło nie może zawierać spacji</string>
+    <string name="new_password_cannot_contain_spaces">Nowe hasło nie może zawierać spacji</string>
+    <string name="confirm_password_cannot_contain_spaces">Potwierdzenie hasła nie może zawierać spacji</string>
+    <string name="password_must_be_8_characters">Hasło musi mieć co najmniej 8 znaków</string>
+    <string name="passwords_do_not_match">Hasła nie są zgodne</string>
+    <string name="current_password_incorrect">Obecne hasło jest nieprawidłowe</string>
+    <string name="failed_to_change_password">Nie udało się zmienić hasła</string>
+    <string name="name_updated_successfully">Nazwa zaktualizowana pomyślnie</string>
+    <string name="failed_to_update_name">Nie udało się zaktualizować nazwy</string>
+    <string name="password_changed_successfully">Hasło zmienione pomyślnie! Zaloguj się ponownie.</string>
+    <string name="minimum_25_characters">Maksymalnie 25 znaków</string>
+    <string name="maximum_16_characters">Maksymalnie 16 znaków</string>
+
+    <!-- Image Screen -->
+    <string name="plant_gallery">Galeria Roślin</string>
+    <string name="photos_from_smart_pot">Zdjęcia z Twojej inteligentnej doniczki</string>
+    <string name="device">Urządzenie</string>
+    <string name="refresh">Odśwież</string>
+    <string name="auto_capture_interval">Automatyczny interwał zdjęć</string>
+    <string name="current">Bieżący</string>
+    <string name="every_hours">co godzina(y)</string>
+    <string name="hours">godzin(y)</string>
+    <string name="take_photo_now">Zrób zdjęcie teraz</string>
+    <string name="capture_current_plant_state">Sfotografuj aktualny stan rośliny</string>
+    <string name="gallery">Galeria</string>
+    <string name="photo">zdjęcie</string>
+    <string name="photos">zdjęć</string>
+    <string name="no_photos_yet">Brak zdjęć</string>
+    <string name="take_first_photo">Wykonaj pierwsze zdjęcie lub poczekaj na automatyczne przechwytywanie</string>
+    <string name="interval_updated">Interwał zaktualizowany pomyślnie</string>
+    <string name="photo_captured">📸 Zdjęcie wykonane!</string>
+    <string name="failed_to_load_image">Nie udało się załadować obrazu</string>
+    <string name="user_not_logged_in">Użytkownik niezalogowany</string>
+    <string name="failed_to_load_data">Nie udało się załadować danych</string>
+    <string name="failed_to_load_devices">Nie udało się załadować urządzeń</string>
+    <string name="failed_to_set_interval">Nie udało się ustawić interwału</string>
+    <string name="failed_to_capture_photo">Nie udało się wykonać zdjęcia</string>
+    <string name="network_error">Błąd sieci</string>
+    <string name="interval_set_to">Interwał ustawiony na co %d godzin(y)</string>
+
+    <!-- Photo Guide Dialog -->
+    <string name="photo_guide_title">Przewodnik po galerii zdjęć</string>
+    <string name="photo_guide_content">Ta sekcja pomaga zarządzać zdjęciami roślin wykonanymi przez Smart Pot.</string>
+    <string name="photo_guide_take_photo">📸 Zrób zdjęcie teraz\nNaciśnij dużą zieloną kartkę poniżej, aby natychmiast uchwycić aktualny stan rośliny. Po wykonaniu zdjęcia przewiń w dół, aby zobaczyć je w galerii.</string>
+    <string name="photo_guide_gallery">🖼️ Galeria zdjęć\nWszystkie wykonane zdjęcia są wyświetlane poniżej, posortowane według daty. Możesz dotknąć dowolnego zdjęcia, aby wyświetlić je na pełnym ekranie.</string>
+    <string name="photo_guide_auto_interval">⏱️ Automatyczny interwał zdjęć\nMożesz ustawić urządzenie tak, aby automatycznie robiło zdjęcia w regularnych odstępach czasu:</string>
+    <string name="photo_guide_interval_list">• Dostępne interwały: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 24 godziny</string>
+    <string name="photo_guide_how_to_save">💾 Jak zapisać:\n1. Wybierz żądany interwał z listy rozwijanej\n2. Naciśnij zielony przycisk z ikoną dyskietki aby zapisać ustawienia</string>
+    <string name="photo_guide_note">📌 Po zmianie interwału odczekaj chwilę, aż ustawienia zsynchronizują się z urządzeniem.</string>
+
+    <!-- Stats Screen -->
+    <string name="statistics">Statystyki</string>
+    <string name="period">Okres</string>
+    <string name="day">Dzień</string>
+    <string name="week">Tydz.</string>
+    <string name="month">Mies.</string>
+    <string name="all">Wszys.</string>
+    <string name="custom">Inny</string>
+    <string name="metric">Metryka</string>
+    <string name="temperature">Temperatura</string>
+    <string name="air_humidity">Wilgotność powietrza</string>
+    <string name="soil_moisture">Wilgotność gleby</string>
+    <string name="light">Światło</string>
+    <string name="showing_records">Wyświetlanie %d-%d z %d rekordów</string>
+    <string name="zoom_out">Oddal (-)</string>
+    <string name="zoom_in">Przybliż (+)</string>
+    <string name="average">Średnia</string>
+    <string name="min">Min</string>
+    <string name="max">Max</string>
+    <string name="change">Zmiana</string>
+    <string name="recent_records">Ostatnie rekordy</string>
+    <string name="no_data_available">Brak dostępnych danych</string>
+    <string name="connect_device_wait">Podłącz urządzenie i poczekaj na zebranie danych</string>
+    <string name="no_data_for_period">Brak danych dla wybranego okresu</string>
+    <string name="select_start_date">Wybierz datę początkową</string>
+    <string name="select_end_date">Wybierz datę końcową</string>
+    <string name="switch_to_end_date">Końcową</string>
+    <string name="switch_to_start_date">Początkową</string>
+    <string name="start_date">Data początkowa</string>
+    <string name="end_date">Data końcowa</string>
+    <string name="previous_month">Poprzedni miesiąc</string>
+    <string name="next_month">Następny miesiąc</string>
+    <string name="mon">Pon</string>
+    <string name="tue">Wt</string>
+    <string name="wed">Śr</string>
+    <string name="thu">Czw</string>
+    <string name="fri">Pt</string>
+    <string name="sat">Sob</string>
+    <string name="sun">Ndz</string>
+    <string name="selected">Wybrano</string>
+    <string name="next">Dalej</string>
+    <string name="apply">Zastosuj</string>
+    <string name="clear">Wyczyść</string>
+    <string name="update">Aktualizuj</string>
+    <string name="data_updated_successfully">✅ Dane zaktualizowane pomyślnie</string>
+    <string name="failed_to_update_data">Nie udało się zaktualizować danych</string>
+    <string name="failed_to_load_history">Nie udało się załadować historii</string>
+    <string name="lamp_on">Lampa: Wł.</string>
+    <string name="lamp_off">Lampa: Wył.</string>
+    <string name="water_yes">Woda: Tak</string>
+    <string name="water_no">Woda: Nie</string>
+    <string name="watering_on">Podlewanie: Wł.</string>
+    <string name="watering_off">Podlewanie: Wył.</string>
+    <string name="celsius">°C</string>
+    <string name="percent">%</string>
+
+    <!-- Period Info Dialog -->
+    <string name="period_info_title">Filtrowanie statystyk według daty</string>
+    <string name="period_info_content">Możesz filtrować wykres i statystyki za pomocą przycisków poniżej:</string>
+    <string name="period_info_day">• Dzień — pokazuje dane tylko z dzisiaj</string>
+    <string name="period_info_week">• Tydz. — pokazuje dane z ostatnich 7 dni</string>
+    <string name="period_info_month">• Mies. — pokazuje dane z ostatnich 30 dni</string>
+    <string name="period_info_all">• Wszys. — pokazuje wszystkie dostępne dane historyczne</string>
+    <string name="period_info_custom">• Inny — pozwala wybrać własny zakres dat</string>
+    <string name="period_info_how_to">📌 Jak używać zakresu Inny:\n\n1. Naciśnij Inny — otworzy się kalendarz\n2. Wybierz datę początkową → naciśnij Dalej\n3. Wybierz datę końcową → naciśnij Zastosuj\n\nWykres pokaże dane od daty początkowej do dnia przed datą końcową (np. 03.05.2026 – 10.05.2026 pokaże dane od 03.05 do 09.05).</string>
+    <string name="period_info_note">Tylko dane zarejestrowane w wybranym okresie zostaną wyświetlone na wykresie i w statystykach.</string>
+</resources>

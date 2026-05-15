@@ -1,0 +1,40 @@
+# Gradle files
+.gradle/
+build/
+*/build/
+/*/build/
+buildSrc/build/
+local.properties
+
+# Android Studio
+*.iml
+.idea/
+.project
+.classpath
+.settings/
+bin/
+gen/
+out/
+.vscode/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Keystore files
+*.jks
+*.keystore
+
+# Logs
+*.log
+
+# PHP backend (config with passwords)
+php-backend/config.php
+php-backend/vendor/
+php-backend/composer.lock
+error_log

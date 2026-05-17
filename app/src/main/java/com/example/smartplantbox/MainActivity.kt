@@ -31,10 +31,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // Save language
         LocalizationManager.applySavedLanguage(this)
 
-        // is this first start?
         val isFirstLaunch = LocalizationManager.isFirstLaunch(this)
 
         setContent {
@@ -55,7 +53,6 @@ class MainActivity : ComponentActivity() {
                     Screen.Welcome -> {
                         WelcomeScreen(
                             onGetStartedClick = {
-                                // Note, that fist start has been
                                 LocalizationManager.setFirstLaunchCompleted(this@MainActivity)
                                 currentScreen = Screen.Login
                             }
@@ -76,9 +73,7 @@ class MainActivity : ComponentActivity() {
                     }
                     Screen.Register -> {
                         RegisterScreen(
-                            onRegisterClick = {
-                                currentScreen = Screen.Main
-                            },
+                            onRegisterClick = {},
                             onLoginClick = {
                                 currentScreen = Screen.Login
                             },

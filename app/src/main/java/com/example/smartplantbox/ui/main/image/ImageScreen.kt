@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -73,8 +74,10 @@ fun ImageScreen() {
     val failedToCapturePhotoText  = stringResource(R.string.failed_to_capture_photo)
     val networkErrorText = stringResource(R.string.network_error)
     val intervalSetToText = stringResource(R.string.interval_set_to)
+    val noDataAvailableText = stringResource(R.string.no_data_available)
+    val retryText = stringResource(R.string.retry)
+    val noDataFoundText = stringResource(R.string.no_data_found)
 
-    // Dialog texts
     val photoGuideTitle = stringResource(R.string.photo_guide_title)
     val photoGuideContent = stringResource(R.string.photo_guide_content)
     val photoGuideTakePhoto = stringResource(R.string.photo_guide_take_photo)
@@ -85,6 +88,7 @@ fun ImageScreen() {
     val photoGuideNote = stringResource(R.string.photo_guide_note)
 
     var isLoading by remember { mutableStateOf(true) }
+    var isLoadingDevices by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var successMessage by remember { mutableStateOf<String?>(null) }
     var isUpdating by remember { mutableStateOf(false) }
@@ -103,45 +107,58 @@ fun ImageScreen() {
     var isLoadingPhotos by remember { mutableStateOf(false) }
     var isTakingPhoto by remember { mutableStateOf(false) }
 
-    // Full-screen photo viewer
     var showPhotoDialog by remember { mutableStateOf(false) }
     var selectedPhotoUrl by remember { mutableStateOf("") }
     var selectedPhotoTime by remember { mutableStateOf("") }
 
-    // Dialog visibility
     var showPhotoGuideDialog by remember { mutableStateOf(false) }
 
-    // Format timestamp for display in grid and viewer (WITH YEAR)
     fun formatDateTime(dateString: String): String = try {
         SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault()).format(
             SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse(dateString) ?: Date()
         )
     } catch (_: Exception) { dateString }
 
-    // Fetch interval and photo times for the selected device
     suspend fun loadPhotoData() {
-        if (selectedDeviceKey.isEmpty()) { isLoading = false; return }
-        isLoading = true; errorMessage = null
+        if (selectedDeviceKey.isEmpty()) {
+            isLoading = false
+            photoTimes = emptyList()
+            return
+        }
+        isLoading = true
+        errorMessage = null
+        photoTimes = emptyList()
         try {
             val token = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
                 .getString("jwt_token", null) ?: run { errorMessage = userNotLoggedInText; isLoading = false; return }
 
-            // Fetch current photo interval
             val intervalResp = repository.getPhotoInterval(selectedDeviceKey, token)
             if (intervalResp.success && intervalResp.data != null) {
                 currentInterval  = intervalResp.data.interval_photo
                 selectedInterval = currentInterval
             }
-            // Fetch list of photo timestamps
             val timesResp = repository.getPhotoTimes(selectedDeviceKey, token)
-            if (timesResp.success) photoTimes = timesResp.times
+            if (timesResp.success) {
+                photoTimes = timesResp.times
+                if (photoTimes.isEmpty()) {
+                    errorMessage = null
+                }
+            } else {
+                errorMessage = timesResp.message ?: failedToLoadDataText
+                photoTimes = emptyList()
+            }
         } catch (e: Exception) {
             errorMessage = "$failedToLoadDataText: ${e.message}"
-        } finally { isLoading = false }
+            photoTimes = emptyList()
+        } finally {
+            isLoading = false
+        }
     }
 
-    // Fetch bound devices then load photo data for the first one
-    suspend fun loadDevices() {
+    suspend fun loadDevicesAndPhotos() {
+        isLoadingDevices = true
+        errorMessage = null
+        photoTimes = emptyList()
         try {
             val prefs = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
             val email = prefs.getString("user_email", null)
@@ -149,16 +166,25 @@ fun ImageScreen() {
             if (email != null && token != null) {
                 val resp = repository.getBoundDevices(email, token)
                 if (resp.success && !resp.keys.isNullOrEmpty()) {
-                    availableDevices  = resp.keys
+                    availableDevices = resp.keys
                     if (selectedDeviceKey.isEmpty()) selectedDeviceKey = resp.keys.first()
                     loadPhotoData()
-                } else { isLoading = false }
-            } else { isLoading = false }
+                } else {
+                    errorMessage = noDataFoundText
+                    isLoading = false
+                }
+            } else {
+                errorMessage = userNotLoggedInText
+                isLoading = false
+            }
         } catch (e: Exception) {
-            errorMessage = "$failedToLoadDevicesText: ${e.message}"; isLoading = false
+            errorMessage = "$failedToLoadDevicesText: ${e.message}"
+            isLoading = false
+        } finally {
+            isLoadingDevices = false
         }
     }
-    // Refresh only the photo timestamps (lighter than full reload)
+
     suspend fun loadPhotoTimes() {
         if (selectedDeviceKey.isEmpty()) return
         isLoadingPhotos = true
@@ -167,17 +193,19 @@ fun ImageScreen() {
                 .getString("jwt_token", null)
             if (token != null) {
                 val resp = repository.getPhotoTimes(selectedDeviceKey, token)
-                if (resp.success) photoTimes = resp.times
+                if (resp.success) {
+                    photoTimes = resp.times
+                }
             }
         } catch (_: Exception) {
-            // Silent fail — gallery will just show old data
         } finally { isLoadingPhotos = false }
     }
 
-    // Send interval_photo command to device
     fun setPhotoInterval() {
         scope.launch {
-            isSettingInterval = true; errorMessage = null; successMessage = null
+            isSettingInterval = true
+            errorMessage = null
+            successMessage = null
             try {
                 val token = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
                     .getString("jwt_token", null) ?: run { errorMessage = userNotLoggedInText; return@launch }
@@ -195,10 +223,11 @@ fun ImageScreen() {
         }
     }
 
-    // Send take_photo command then refresh the gallery
     fun takePhotoNow() {
         scope.launch {
-            isTakingPhoto = true; errorMessage = null; successMessage = null
+            isTakingPhoto = true
+            errorMessage = null
+            successMessage = null
             try {
                 val token = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
                     .getString("jwt_token", null) ?: run { errorMessage = userNotLoggedInText; return@launch }
@@ -206,7 +235,8 @@ fun ImageScreen() {
                 if (resp.success) {
                     successMessage = photoCapturedText
                     android.widget.Toast.makeText(context, photoCapturedText, android.widget.Toast.LENGTH_SHORT).show()
-                    delay(1000); loadPhotoTimes()
+                    delay(1000)
+                    loadPhotoTimes()
                 } else {
                     errorMessage = resp.message ?: failedToCapturePhotoText
                 }
@@ -216,7 +246,6 @@ fun ImageScreen() {
         }
     }
 
-    // Resolve photo URL then open the full-screen viewer
     fun openPhoto(time: String) {
         scope.launch {
             try {
@@ -224,7 +253,9 @@ fun ImageScreen() {
                     .getString("jwt_token", null) ?: return@launch
                 val resp = repository.getPhotoUrl(selectedDeviceKey, time, token)
                 if (resp.success && resp.url.isNotEmpty()) {
-                    selectedPhotoUrl = resp.url; selectedPhotoTime = time; showPhotoDialog = true
+                    selectedPhotoUrl = resp.url
+                    selectedPhotoTime = time
+                    showPhotoDialog = true
                 } else {
                     android.widget.Toast.makeText(context, failedToLoadImageText, android.widget.Toast.LENGTH_SHORT).show()
                 }
@@ -234,13 +265,15 @@ fun ImageScreen() {
         }
     }
 
-    // Load on first composition
-    LaunchedEffect(Unit) { loadDevices() }
+    LaunchedEffect(Unit) { loadDevicesAndPhotos() }
 
-    // Reload photo data whenever the selected device changes
-    LaunchedEffect(selectedDeviceKey) { if (selectedDeviceKey.isNotEmpty()) loadPhotoData() }
+    LaunchedEffect(selectedDeviceKey) {
+        if (selectedDeviceKey.isNotEmpty()) {
+            loadPhotoData()
+        }
+    }
 
-    // UI
+    // UI______________________
     Box(modifier = Modifier.fillMaxSize()) {
         Image(painterResource(R.drawable.top_overlay), null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
         Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.4f)))
@@ -248,161 +281,328 @@ fun ImageScreen() {
         Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
             Spacer(modifier = Modifier.height(48.dp))
 
-            // Page header
             Text(plantGalleryText, fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.White)
             Spacer(modifier = Modifier.height(8.dp))
             Text(photosFromSmartPotText, fontSize = 16.sp, color = Color.White.copy(alpha = 0.8f))
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Card: device selector
-            ImageCard {
-                Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                        Text(deviceText, fontSize = 14.sp, color = Color.Gray)
-                        // Refresh icon button
-                        IconButton(onClick = { scope.launch { isUpdating = true; loadPhotoData(); isUpdating = false } }, enabled = !isLoading && !isUpdating, modifier = Modifier.size(36.dp)) {
-                            if (isLoading) CircularProgressIndicator(color = Color(0xFF4CAF50), modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
-                            else Icon(painterResource(R.drawable.ic_system_update_alt), refreshText, modifier = Modifier.size(20.dp), tint = Color(0xFF4CAF50))
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    // Device dropdown
-                    ExposedDropdownMenuBox(expanded = deviceDropdownExpanded, onExpandedChange = { deviceDropdownExpanded = it }) {
-                        OutlinedTextField(
-                            value = selectedDeviceKey, onValueChange = {}, readOnly = true,
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = deviceDropdownExpanded) },
-                            modifier = Modifier.fillMaxWidth().menuAnchor(),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color(0xFF4CAF50), unfocusedBorderColor = Color(0xFFE0E0E0))
-                        )
-                        ExposedDropdownMenu(expanded = deviceDropdownExpanded, onDismissRequest = { deviceDropdownExpanded = false }) {
-                            availableDevices.forEach { device ->
-                                DropdownMenuItem(text = { Text(device, fontSize = 14.sp) }, onClick = { selectedDeviceKey = device; deviceDropdownExpanded = false })
-                            }
-                        }
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Error / success banners
-            if (errorMessage != null) {
-                Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = Color(0xFFFFEBEE))) {
-                    Text(errorMessage!!, color = Color(0xFFD32F2F), modifier = Modifier.padding(12.dp), fontSize = 14.sp)
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-            }
             if (successMessage != null) {
-                Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9))) {
-                    Text(successMessage!!, color = Color(0xFF2E7D32), modifier = Modifier.padding(12.dp), fontSize = 14.sp)
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-
-            // Card: auto capture interval picker with info icon
-            ImageCard {
-                Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-                    // Header row with title and info icon
+                Card(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9))
+                ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.padding(12.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(painterResource(R.drawable.ic_timer), autoCaptureIntervalText, modifier = Modifier.size(28.dp), tint = Color(0xFF4CAF50))
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text(autoCaptureIntervalText, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1B5E20))
-                        }
-                        // Info icon (clickable)
-                        Image(
-                            painter = painterResource(R.drawable.ic_end_card),
-                            contentDescription = "Info",
-                            modifier = Modifier
-                                .size(24.dp)
-                                .clickable { showPhotoGuideDialog = true },
-                            contentScale = ContentScale.Fit
+                        Icon(
+                            painter = painterResource(R.drawable.ic_check),
+                            null,
+                            tint = Color(0xFF2E7D32),
+                            modifier = Modifier.size(20.dp)
                         )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(successMessage!!, color = Color(0xFF2E7D32), fontSize = 14.sp)
                     }
+                }
+            }
 
-                    Text("$currentText: ${if (currentInterval > 0) "$currentInterval $everyHoursText" else "—"}", fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(bottom = 12.dp))
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                        // Interval dropdown
-                        ExposedDropdownMenuBox(expanded = intervalDropdownExpanded, onExpandedChange = { intervalDropdownExpanded = it }) {
+            if (isLoadingDevices) {
+                Card(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.95f))
+                ) {
+                    Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = Color(0xFF4CAF50))
+                    }
+                }
+            }
+            else if (availableDevices.isEmpty() && errorMessage != null && !isLoadingDevices) {
+                Card(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.95f))
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_photo_library),
+                            noDataFoundText,
+                            tint = Color(0xFF4CAF50),
+                            modifier = Modifier.size(64.dp)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            noDataFoundText,
+                            fontSize = 14.sp,
+                            color = Color(0xFFF44336),
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Medium
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(
+                            onClick = { scope.launch { loadDevicesAndPhotos() } },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text(retryText, color = Color.White)
+                        }
+                    }
+                }
+            }
+            else if (availableDevices.isNotEmpty()) {
+                ImageCard {
+                    Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(deviceText, fontSize = 14.sp, color = Color.Gray)
+                            IconButton(
+                                onClick = { scope.launch { isUpdating = true; loadPhotoData(); isUpdating = false } },
+                                enabled = !isLoading && !isUpdating,
+                                modifier = Modifier.size(36.dp)
+                            ) {
+                                if (isLoading) CircularProgressIndicator(color = Color(0xFF4CAF50), modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                                else Icon(painterResource(R.drawable.ic_system_update_alt), refreshText, modifier = Modifier.size(20.dp), tint = Color(0xFF4CAF50))
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        ExposedDropdownMenuBox(
+                            expanded = deviceDropdownExpanded,
+                            onExpandedChange = { deviceDropdownExpanded = it }
+                        ) {
                             OutlinedTextField(
-                                value = "$selectedInterval $hoursText", onValueChange = {}, readOnly = true,
-                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = intervalDropdownExpanded) },
-                                modifier = Modifier.weight(1f).menuAnchor(),
+                                value = selectedDeviceKey, onValueChange = {}, readOnly = true,
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = deviceDropdownExpanded) },
+                                modifier = Modifier.fillMaxWidth().menuAnchor(),
                                 shape = RoundedCornerShape(12.dp),
-                                textStyle = TextStyle(fontSize = 14.sp),
-                                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color(0xFF4CAF50), unfocusedBorderColor = Color(0xFFE0E0E0))
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = Color(0xFF4CAF50),
+                                    unfocusedBorderColor = Color(0xFFE0E0E0),
+                                    focusedTextColor = Color.Black,
+                                    unfocusedTextColor = Color.Black,
+                                    disabledTextColor = Color.Black
+                                )
                             )
-                            ExposedDropdownMenu(expanded = intervalDropdownExpanded, onDismissRequest = { intervalDropdownExpanded = false }) {
-                                intervalOptions.forEach { h ->
-                                    DropdownMenuItem(text = { Text("$h $hoursText", fontSize = 14.sp) }, onClick = { selectedInterval = h; intervalDropdownExpanded = false })
+                            ExposedDropdownMenu(
+                                expanded = deviceDropdownExpanded,
+                                onDismissRequest = { deviceDropdownExpanded = false },
+                                containerColor = Color.White
+                            ) {
+                                availableDevices.forEach { device ->
+                                    DropdownMenuItem(
+                                        text = {
+                                            Text(
+                                                text = device,
+                                                fontSize = 14.sp,
+                                                color = Color.Black
+                                            )
+                                        },
+                                        onClick = {
+                                            selectedDeviceKey = device
+                                            deviceDropdownExpanded = false
+                                        }
+                                    )
                                 }
                             }
                         }
-                        // Save interval button
-                        val canSave = !isSettingInterval && selectedInterval != currentInterval
-                        IconButton(
-                            onClick = { setPhotoInterval() },
-                            enabled = canSave,
-                            modifier = Modifier.size(48.dp).background(if (canSave) Color(0xFF4CAF50) else Color(0xFFA5D6A7), RoundedCornerShape(12.dp))
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                ImageCard {
+                    Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            if (isSettingInterval) CircularProgressIndicator(color = Color.White, modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
-                            else Icon(painterResource(R.drawable.ic_save), stringResource(R.string.save), modifier = Modifier.size(24.dp), tint = Color.White)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(painterResource(R.drawable.ic_timer), autoCaptureIntervalText, modifier = Modifier.size(28.dp), tint = Color(0xFF4CAF50))
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text(autoCaptureIntervalText, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1B5E20))
+                            }
+                            Image(
+                                imageVector = Icons.Default.Info,
+                                contentDescription = "Info",
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .clickable { showPhotoGuideDialog = true },
+                                contentScale = ContentScale.Fit
+                            )
+                        }
+
+                        Text(
+                            "$currentText: ${if (currentInterval > 0) "$currentInterval $everyHoursText" else "—"}",
+                            fontSize = 14.sp,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(bottom = 12.dp)
+                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            ExposedDropdownMenuBox(
+                                expanded = intervalDropdownExpanded,
+                                onExpandedChange = { intervalDropdownExpanded = it }
+                            ) {
+                                OutlinedTextField(
+                                    value = "$selectedInterval $hoursText", onValueChange = {}, readOnly = true,
+                                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = intervalDropdownExpanded) },
+                                    modifier = Modifier.weight(1f).menuAnchor(),
+                                    shape = RoundedCornerShape(12.dp),
+                                    textStyle = TextStyle(fontSize = 14.sp),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = Color(0xFF4CAF50),
+                                        unfocusedBorderColor = Color(0xFFE0E0E0),
+                                        focusedTextColor = Color.Black,
+                                        unfocusedTextColor = Color.Black,
+                                        disabledTextColor = Color.Black
+                                    )
+                                )
+                                ExposedDropdownMenu(
+                                    expanded = intervalDropdownExpanded,
+                                    onDismissRequest = { intervalDropdownExpanded = false },
+                                    containerColor = Color.White
+                                ) {
+                                    intervalOptions.forEach { h ->
+                                        DropdownMenuItem(
+                                            text = {
+                                                Text(
+                                                    text = "$h $hoursText",
+                                                    fontSize = 14.sp,
+                                                    color = Color.Black
+                                                )
+                                            },
+                                            onClick = { selectedInterval = h; intervalDropdownExpanded = false }
+                                        )
+                                    }
+                                }
+                            }
+                            val canSave = !isSettingInterval && selectedInterval != currentInterval
+                            IconButton(
+                                onClick = { setPhotoInterval() },
+                                enabled = canSave,
+                                modifier = Modifier.size(48.dp).background(if (canSave) Color(0xFF4CAF50) else Color(0xFFA5D6A7), RoundedCornerShape(12.dp))
+                            ) {
+                                if (isSettingInterval) CircularProgressIndicator(color = Color.White, modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                                else Icon(painterResource(R.drawable.ic_save), stringResource(R.string.save), modifier = Modifier.size(24.dp), tint = Color.White)
+                            }
                         }
                     }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-            //Card: take photo now button
-            Card(
-                modifier = Modifier.fillMaxWidth().clickable(enabled = !isTakingPhoto) { takePhotoNow() },
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF4CAF50)),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-            ) {
-                Column(modifier = Modifier.fillMaxWidth().padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(painterResource(R.drawable.ic_camera_alt), takePhotoNowText, modifier = Modifier.size(48.dp), tint = Color.White)
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(takePhotoNowText, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White, textAlign = TextAlign.Center)
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(captureCurrentPlantState, fontSize = 12.sp, color = Color.White.copy(alpha = 0.8f), textAlign = TextAlign.Center)
-                    if (isTakingPhoto) { Spacer(modifier = Modifier.height(12.dp)); CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp), strokeWidth = 2.dp) }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Gallery header with photo count
-            val photoCount = photoTimes.size
-            val countLabel = if (photoCount == 1) "$photoCount $photoText" else "$photoCount $photosText"
-            Text("📸 $galleryText ($countLabel)", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White, modifier = Modifier.padding(vertical = 8.dp))
-
-            when {
-                isLoadingPhotos -> Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = Color.White)
-                }
-                photoTimes.isEmpty() -> ImageCard {
-                    Column(modifier = Modifier.fillMaxWidth().padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(painterResource(R.drawable.ic_photo_library), noPhotosYetText, modifier = Modifier.size(64.dp), tint = Color(0xFF4CAF50))
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(noPhotosYetText, fontSize = 16.sp, fontWeight = FontWeight.Medium, color = Color(0xFF1B5E20))
-                        Text(takeFirstPhotoText, fontSize = 12.sp, color = Color.Gray, textAlign = TextAlign.Center)
+                Card(
+                    modifier = Modifier.fillMaxWidth().clickable(enabled = !isTakingPhoto) { takePhotoNow() },
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF4CAF50)),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(20.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(painterResource(R.drawable.ic_camera_alt), takePhotoNowText, modifier = Modifier.size(48.dp), tint = Color.White)
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(takePhotoNowText, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White, textAlign = TextAlign.Center)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(captureCurrentPlantState, fontSize = 12.sp, color = Color.White.copy(alpha = 0.8f), textAlign = TextAlign.Center)
+                        if (isTakingPhoto) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                        }
                     }
                 }
-                else -> LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.heightIn(max = 500.dp)
-                ) {
-                    items(photoTimes) { time ->
-                        PhotoCard(time = time, formattedTime = formatDateTime(time), onClick = { openPhoto(time) })
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                val photoCount = photoTimes.size
+                val countLabel = if (photoCount == 1) "$photoCount $photoText" else "$photoCount $photosText"
+                Text("📸 $galleryText ($countLabel)", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White, modifier = Modifier.padding(vertical = 8.dp))
+
+                when {
+                    isLoading -> Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = Color.White)
+                    }
+                    photoTimes.isEmpty() && !isLoading -> {
+                        ImageCard {
+                            Column(
+                                modifier = Modifier.fillMaxWidth().padding(32.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_photo_library),
+                                    noPhotosYetText,
+                                    modifier = Modifier.size(64.dp),
+                                    tint = Color(0xFF4CAF50)
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    noPhotosYetText,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = Color(0xFF1B5E20)
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    takeFirstPhotoText,
+                                    fontSize = 12.sp,
+                                    color = Color.Gray,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+                        }
+                    }
+                    photoTimes.isNotEmpty() -> {
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(2),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier.heightIn(max = 500.dp)
+                        ) {
+                            items(photoTimes) { time ->
+                                PhotoCard(time = time, formattedTime = formatDateTime(time), onClick = { openPhoto(time) })
+                            }
+                        }
+                    }
+                    else -> {
+                        ImageCard {
+                            Column(
+                                modifier = Modifier.fillMaxWidth().padding(32.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_error),
+                                    noDataAvailableText,
+                                    tint = Color(0xFFD32F2F),
+                                    modifier = Modifier.size(64.dp)
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    errorMessage ?: failedToLoadDataText,
+                                    fontSize = 14.sp,
+                                    color = Color(0xFFD32F2F),
+                                    textAlign = TextAlign.Center
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Button(
+                                    onClick = { scope.launch { loadPhotoData() } },
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+                                    shape = RoundedCornerShape(12.dp)
+                                ) {
+                                    Text(retryText, color = Color.White)
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -411,10 +611,16 @@ fun ImageScreen() {
         }
     }
 
-    // Full-screen photo viewer dialog
     if (showPhotoDialog && selectedPhotoUrl.isNotEmpty()) {
-        Dialog(onDismissRequest = { showPhotoDialog = false }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
-            Card(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.8f), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.Black)) {
+        Dialog(
+            onDismissRequest = { showPhotoDialog = false },
+            properties = DialogProperties(usePlatformDefaultWidth = false)
+        ) {
+            Card(
+                modifier = Modifier.fillMaxWidth().fillMaxHeight(0.8f),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.Black)
+            ) {
                 Box(modifier = Modifier.fillMaxSize()) {
                     AsyncImage(
                         model = ImageRequest.Builder(context).data(selectedPhotoUrl).crossfade(true).build(),
@@ -422,23 +628,30 @@ fun ImageScreen() {
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Fit
                     )
-                    // Close button
                     IconButton(
                         onClick = { showPhotoDialog = false },
-                        modifier = Modifier.align(Alignment.TopEnd).padding(16.dp).background(Color.Black.copy(alpha = 0.5f), CircleShape)
-                    ) { Icon(Icons.Default.Close, stringResource(R.string.cancel), tint = Color.White) }
-                    // Timestamp label at bottom (with year)
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(16.dp)
+                            .background(Color.Black.copy(alpha = 0.5f), CircleShape)
+                    ) {
+                        Icon(Icons.Default.Close, stringResource(R.string.cancel), tint = Color.White)
+                    }
                     Text(
                         text = formatDateTime(selectedPhotoTime),
-                        fontSize = 12.sp, color = Color.White,
-                        modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp).background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(8.dp)).padding(8.dp)
+                        fontSize = 12.sp,
+                        color = Color.White,
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(16.dp)
+                            .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
+                            .padding(8.dp)
                     )
                 }
             }
         }
     }
 
-    // Photo Guide Dialog
     if (showPhotoGuideDialog) {
         AlertDialog(
             onDismissRequest = { showPhotoGuideDialog = false },
@@ -465,7 +678,6 @@ fun ImageScreen() {
                         .fillMaxWidth()
                         .verticalScroll(rememberScrollState())
                 ) {
-                    // Introduction
                     Text(
                         text = photoGuideContent,
                         fontSize = 14.sp,
@@ -474,7 +686,6 @@ fun ImageScreen() {
                     )
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // Take Photo Now section
                     Card(
                         colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD)),
                         shape = RoundedCornerShape(8.dp)
@@ -490,7 +701,6 @@ fun ImageScreen() {
                     }
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Gallery section
                     Card(
                         colors = CardDefaults.cardColors(containerColor = Color(0xFFF3E5F5)),
                         shape = RoundedCornerShape(8.dp)
@@ -506,7 +716,6 @@ fun ImageScreen() {
                     }
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Auto Capture Interval section
                     Card(
                         colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9)),
                         shape = RoundedCornerShape(8.dp)
@@ -529,7 +738,6 @@ fun ImageScreen() {
                     }
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // How to save section
                     Card(
                         colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3E0)),
                         shape = RoundedCornerShape(8.dp)
@@ -544,7 +752,6 @@ fun ImageScreen() {
                     }
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // Note
                     Text(
                         text = photoGuideNote,
                         fontSize = 12.sp,
@@ -568,7 +775,6 @@ fun ImageScreen() {
     }
 }
 
-//Reusable white card wrapper for image screen sections
 @Composable
 private fun ImageCard(content: @Composable () -> Unit) {
     Card(
@@ -579,7 +785,6 @@ private fun ImageCard(content: @Composable () -> Unit) {
     ) { content() }
 }
 
-// Photo thumbnail card shown in the 2-column grid
 @Composable
 fun PhotoCard(time: String, formattedTime: String, onClick: () -> Unit) {
     Card(
@@ -588,7 +793,11 @@ fun PhotoCard(time: String, formattedTime: String, onClick: () -> Unit) {
         colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.95f)),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
             Icon(painterResource(R.drawable.ic_image_placeholder), "Photo", modifier = Modifier.size(48.dp), tint = Color(0xFF4CAF50))
             Spacer(modifier = Modifier.height(8.dp))
             Text(formattedTime, fontSize = 12.sp, color = Color.Gray, textAlign = TextAlign.Center, maxLines = 2)

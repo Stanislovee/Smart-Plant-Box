@@ -11,8 +11,6 @@ import kotlinx.coroutines.TimeoutCancellationException
 
 class AuthApiService(private val client: HttpClient = KtorClient.client) {
 
-    // Auth
-
     suspend fun login(request: LoginRequest, context: Context): Pair<Int, ApiResponse> {
         println("[LOGIN] Sending request to: ${KtorClient.BASE_URL}login.php")
         println("[LOGIN] Email: ${request.Email}")
@@ -31,7 +29,6 @@ class AuthApiService(private val client: HttpClient = KtorClient.client) {
             val apiResponse: ApiResponse = response.body()
             println("[LOGIN] Parsed - success: ${apiResponse.success}, message: ${apiResponse.message}, token: ${apiResponse.token?.take(10)}...")
 
-            // Save token and email to SharedPreferences on successful login
             if (apiResponse.success && apiResponse.token != null) {
                 context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE).edit().apply {
                     putString("user_email", request.Email)
@@ -90,7 +87,6 @@ class AuthApiService(private val client: HttpClient = KtorClient.client) {
         }
         return Pair(response.status.value, response.body())
     }
-    // Profile
     suspend fun updateProfile(token: String, name: String): Pair<Int, ApiResponse> {
         val response: HttpResponse = client.post("${KtorClient.BASE_URL}update_profile.php") {
             contentType(ContentType.Application.Json)
@@ -108,7 +104,6 @@ class AuthApiService(private val client: HttpClient = KtorClient.client) {
         }
         return Pair(response.status.value, response.body())
     }
-    // Devices
     suspend fun getBoundDevices(email: String, token: String): KeyListResponse {
         return try {
             val response: HttpResponse = client.post("${KtorClient.BASE_URL}key_list.php") {
@@ -137,7 +132,6 @@ class AuthApiService(private val client: HttpClient = KtorClient.client) {
         }
         return Pair(response.status.value, response.body())
     }
-    // Sensor data
     suspend fun getAirData(key: String, token: String): AirDataResponse {
         return try {
             val response: HttpResponse = client.post("${KtorClient.BASE_URL}type_data.php") {
@@ -186,7 +180,6 @@ class AuthApiService(private val client: HttpClient = KtorClient.client) {
             CommandResponse(success = false, message = e.message)
         }
     }
-    // Lamp control uses sendCommand internally
     suspend fun setLampStatus(key: String, isOn: Boolean, token: String): ApiResponse {
         val result = sendCommand(key, if (isOn) "lamp:ON" else "lamp:OFF", token)
         return ApiResponse(success = result.success, message = result.message)
@@ -204,9 +197,6 @@ class AuthApiService(private val client: HttpClient = KtorClient.client) {
             PlantHistoryResponse(success = false, message = e.message)
         }
     }
-
-    // Photo
-
     suspend fun getPhotoInterval(key: String, token: String): PhotoIntervalResponse {
         return try {
             val response: HttpResponse = client.post("${KtorClient.BASE_URL}type_data.php") {

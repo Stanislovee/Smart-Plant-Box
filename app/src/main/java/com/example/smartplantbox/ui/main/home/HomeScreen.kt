@@ -70,6 +70,8 @@ fun HomeScreen(onNavigateToPotSettings: (String, String) -> Unit) {
     val max11CharactersText = stringResource(R.string.max_11_characters)
     val networkErrorText = stringResource(R.string.network_error)
 
+    val noKeysFoundText = stringResource(R.string.no_keys_found)
+
     val onionText = stringResource(R.string.onion)
     val garlicText = stringResource(R.string.garlic)
     val cucumberText = stringResource(R.string.cucumber)
@@ -93,7 +95,6 @@ fun HomeScreen(onNavigateToPotSettings: (String, String) -> Unit) {
     var showGuideDialog by remember { mutableStateOf(false) }
     var selectedPlantGuide by remember { mutableStateOf<PlantGuide?>(null) }
 
-    // Function to check if device is active (can fetch data)
     suspend fun isDeviceActive(deviceSn: String, token: String): Boolean {
         return try {
             val repository = AuthRepositoryImpl()
@@ -104,7 +105,6 @@ fun HomeScreen(onNavigateToPotSettings: (String, String) -> Unit) {
         }
     }
 
-    // Load devices and check their status
     suspend fun loadDevices(
         context: Context,
         authViewModel: AuthViewModel,
@@ -136,7 +136,12 @@ fun HomeScreen(onNavigateToPotSettings: (String, String) -> Unit) {
                 }
                 onResult(devicesWithStatus, null)
             } else {
-                onResult(emptyList(), response.message)
+                val errorMsg = if (response.message == "No keys found for this email") {
+                    noKeysFoundText
+                } else {
+                    response.message
+                }
+                onResult(emptyList(), errorMsg)
             }
         } catch (e: Exception) {
             onResult(emptyList(), "${context.getString(R.string.network_error)}: ${e.message}")
@@ -254,7 +259,6 @@ fun HomeScreen(onNavigateToPotSettings: (String, String) -> Unit) {
         }
     }
 
-    // Dialog: add new device by serial key
     if (showAddDeviceDialog) {
         AlertDialog(
             onDismissRequest = { showAddDeviceDialog = false },
@@ -378,6 +382,7 @@ fun NoDeviceCard(onAddDeviceClick: () -> Unit) {
         }
     }
 }
+
 @Composable
 fun DeviceCard(
     device: DeviceItem,
@@ -406,7 +411,6 @@ fun DeviceCard(
     var nameError by remember { mutableStateOf<String?>(null) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
-    // Status color and text based on device.isActive
     val statusColor = if (device.isActive) Color(0xFF4CAF50) else Color(0xFFD32F2F)
     val statusText = if (device.isActive) activeText else inactiveText
 
@@ -418,7 +422,7 @@ fun DeviceCard(
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Image(painterResource(R.drawable.device_card_bg), cardBgText, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
-            //
+
             Image(
                 painter = painterResource(R.drawable.device_center_icon),
                 deviceIconText,
@@ -432,7 +436,6 @@ fun DeviceCard(
             Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        // Status indicator circle (green if active, red if inactive)
                         Box(
                             modifier = Modifier
                                 .size(12.dp)
@@ -581,15 +584,16 @@ fun PlantCard(plant: PlantItem, onGuideClick: () -> Unit) {
                 onClick = onGuideClick,
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+                contentPadding = PaddingValues(0.dp),
                 modifier = Modifier
-                    .width(55.dp)
-                    .height(55.dp)
+                    .width(48.dp)
+                    .height(48.dp)
             ) {
-                Text(
-                    text = "🔍",
-                    fontSize = 28.sp,
-                    color = Color.White,
-                    modifier = Modifier.offset(x = (-10).dp)
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = guideText,
+                    tint = Color.White,
+                    modifier = Modifier.size(24.dp)
                 )
             }
         }
@@ -649,7 +653,13 @@ suspend fun loadDevices(context: Context, authViewModel: AuthViewModel, onResult
             }
             onResult(devicesWithStatus, null)
         } else {
-            onResult(emptyList(), response.message)
+            val noKeysFoundText = context.getString(R.string.no_keys_found)
+            val errorMsg = if (response.message == "No keys found for this email") {
+                noKeysFoundText
+            } else {
+                response.message
+            }
+            onResult(emptyList(), errorMsg)
         }
     } catch (e: Exception) {
         onResult(emptyList(), "${context.getString(R.string.network_error)}: ${e.message}")
@@ -668,7 +678,6 @@ suspend fun addDevice(context: Context, deviceKey: String, onSuccess: (DeviceIte
 
         val (_, response) = AuthRepositoryImpl().bindDevice(deviceKey, email, token)
         if (response.success) {
-            // Check if the newly added device is active
             val isActive = isDeviceActive(deviceKey, token)
             onSuccess(DeviceItem(name = "New Device", sn = deviceKey, isActive = isActive))
         } else {

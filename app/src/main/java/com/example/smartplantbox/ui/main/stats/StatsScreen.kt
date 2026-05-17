@@ -7,6 +7,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -52,8 +54,8 @@ fun StatsScreen() {
     val scope = rememberCoroutineScope()
     val repository = remember { AuthRepositoryImpl() }
 
-    // Localised strings
     val statisticsText = stringResource(R.string.statistics)
+    val analiseText = stringResource(R.string.analise_statistic)
     val deviceText = stringResource(R.string.device)
     val periodText = stringResource(R.string.period)
     val metricText = stringResource(R.string.metric)
@@ -111,8 +113,10 @@ fun StatsScreen() {
     val waterNoText = stringResource(R.string.water_no)
     val wateringOnText = stringResource(R.string.watering_on)
     val wateringOffText = stringResource(R.string.watering_off)
+    val retryText = stringResource(R.string.retry)
+    val deviceLabelText = stringResource(R.string.device)
+    val noDataFoundText = stringResource(R.string.no_data_found)
 
-    // Period Info Dialog texts
     val periodInfoTitle = stringResource(R.string.period_info_title)
     val periodInfoContent = stringResource(R.string.period_info_content)
     val periodInfoDay = stringResource(R.string.period_info_day)
@@ -123,7 +127,6 @@ fun StatsScreen() {
     val periodInfoHowTo = stringResource(R.string.period_info_how_to)
     val periodInfoNote = stringResource(R.string.period_info_note)
 
-    // Screen state
     var isLoading by remember { mutableStateOf(true) }
     var isUpdating by remember { mutableStateOf(false) }
     var isLoadingDevices by remember { mutableStateOf(false) }
@@ -147,7 +150,6 @@ fun StatsScreen() {
     var deviceDropdownExpanded by remember { mutableStateOf(false) }
     var metricDropdownExpanded by remember { mutableStateOf(false) }
 
-    // Custom date range
     var showDatePicker by remember { mutableStateOf(false) }
     var customStartDate by remember { mutableStateOf<Long?>(null) }
     var customEndDate by remember { mutableStateOf<Long?>(null) }
@@ -160,15 +162,12 @@ fun StatsScreen() {
     var endDay by remember { mutableIntStateOf(nowCal.get(Calendar.DAY_OF_MONTH)) }
     var isSelectingStart by remember { mutableStateOf(true) }
 
-    // Dialog visibility states
     var showPeriodInfoDialog by remember { mutableStateOf(false) }
 
-    // Chart viewport
     val itemsPerPage = 15
     var visibleStartIndex by remember { mutableIntStateOf(0) }
     var visibleEndIndex by remember { mutableIntStateOf(itemsPerPage) }
 
-    // ! Helper functions
     fun parseDate(s: String): Date? = try {
         SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse(s)
     } catch (_: Exception) { null }
@@ -251,7 +250,6 @@ fun StatsScreen() {
             visibleEndIndex = minOf(total, visibleStartIndex + count)
         }
     }
-    // Data loading functions
     suspend fun loadAvailableDevices(): List<String> {
         return try {
             val prefs = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
@@ -329,7 +327,7 @@ fun StatsScreen() {
             } else {
                 historyData = emptyList()
                 filteredData = emptyList()
-                errorMessage = noDataAvailableText
+                errorMessage = noDataFoundText
                 isLoading = false
             }
         } catch (e: Exception) {
@@ -368,12 +366,10 @@ fun StatsScreen() {
         }
     }
 
-    // Load data on screen enter
     LaunchedEffect(Unit) {
         refreshDevicesAndHistory()
     }
 
-    // Update filtered data when filters change
     LaunchedEffect(selectedFilter, historyData, customStartDate, customEndDate) {
         filteredData = filterByPeriod(historyData, selectedFilter)
         resetViewport(filteredData.size)
@@ -387,13 +383,12 @@ fun StatsScreen() {
         Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.4f)))
 
         Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 48.dp, start = 16.dp, end = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(top = 48.dp, start = 16.dp, end = 16.dp)
             ) {
                 Text(statisticsText, fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                Spacer(modifier = Modifier.size(48.dp))
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(analiseText, fontSize = 16.sp, color = Color.White.copy(alpha = 0.8f))
             }
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -404,7 +399,7 @@ fun StatsScreen() {
 
                 errorMessage != null && availableDevices.isEmpty() -> StatsCard {
                     Column(modifier = Modifier.fillMaxWidth().padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.DateRange, noDataAvailableText, tint = Color(0xFF4CAF50), modifier = Modifier.size(64.dp))
+                        Icon(Icons.Default.DateRange, noDataFoundText, tint = Color(0xFF4CAF50), modifier = Modifier.size(64.dp))
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(errorMessage!!, fontSize = 14.sp, color = Color(0xFFD32F2F), textAlign = TextAlign.Center)
                         Spacer(modifier = Modifier.height(16.dp))
@@ -413,13 +408,12 @@ fun StatsScreen() {
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
                             shape = RoundedCornerShape(12.dp)
                         ) {
-                            Text("Retry", color = Color.White)
+                            Text(retryText, color = Color.White)
                         }
                     }
                 }
 
                 else -> {
-                    // Device selector card
                     StatsCard {
                         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                             Row(
@@ -427,7 +421,7 @@ fun StatsScreen() {
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(deviceText, fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(bottom = 8.dp))
+                                Text(deviceLabelText, fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(bottom = 8.dp))
                                 Button(
                                     onClick = { triggerUpdate() },
                                     enabled = !isUpdating && selectedDeviceKey.isNotEmpty(),
@@ -456,16 +450,26 @@ fun StatsScreen() {
                                     shape = RoundedCornerShape(12.dp),
                                     colors = OutlinedTextFieldDefaults.colors(
                                         focusedBorderColor = Color(0xFF4CAF50),
-                                        unfocusedBorderColor = Color(0xFFE0E0E0)
+                                        unfocusedBorderColor = Color(0xFFE0E0E0),
+                                        focusedTextColor = Color.Black,
+                                        unfocusedTextColor = Color.Black,
+                                        disabledTextColor = Color.Black
                                     )
                                 )
                                 ExposedDropdownMenu(
                                     expanded = deviceDropdownExpanded,
-                                    onDismissRequest = { deviceDropdownExpanded = false }
+                                    onDismissRequest = { deviceDropdownExpanded = false },
+                                    containerColor = Color.White
                                 ) {
                                     availableDevices.forEach { key ->
                                         DropdownMenuItem(
-                                            text = { Text(key, fontSize = 14.sp) },
+                                            text = {
+                                                Text(
+                                                    text = key,
+                                                    fontSize = 14.sp,
+                                                    color = Color.Black
+                                                )
+                                            },
                                             onClick = {
                                                 selectedDeviceKey = key
                                                 deviceDropdownExpanded = false
@@ -477,38 +481,34 @@ fun StatsScreen() {
                             }
                         }
                     }
-                    // Error with retry for selected device
                     if (errorMessage != null && historyData.isEmpty()) {
                         StatsCard {
                             Column(modifier = Modifier.fillMaxWidth().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(errorMessage!!, fontSize = 14.sp, color = Color(0xFFD32F2F), textAlign = TextAlign.Center)
+                                Text(noDataFoundText, fontSize = 14.sp, color = Color(0xFFD32F2F), textAlign = TextAlign.Center)
                                 Spacer(modifier = Modifier.height(8.dp))
-                                Text("Device: $selectedDeviceKey", fontSize = 12.sp, color = Color.Gray)
+                                Text("$deviceLabelText: $selectedDeviceKey", fontSize = 12.sp, color = Color.Gray)
                                 Spacer(modifier = Modifier.height(16.dp))
                                 Button(
                                     onClick = { scope.launch { loadHistory(selectedDeviceKey) } },
                                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
                                     shape = RoundedCornerShape(12.dp)
                                 ) {
-                                    Text("Retry", color = Color.White)
+                                    Text(retryText, color = Color.White)
                                 }
                             }
                         }
                     }
                     if (historyData.isNotEmpty()) {
-                        // Period filter chips with info icon
                         StatsCard {
                             Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-                                // Row with title and info icon
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(periodText, fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(bottom = 8.dp))
-                                    // Info icon
                                     Image(
-                                        painter = painterResource(R.drawable.ic_end_card),
+                                        imageVector = Icons.Default.Info,
                                         contentDescription = "Info",
                                         modifier = Modifier
                                             .size(20.dp)
@@ -517,7 +517,12 @@ fun StatsScreen() {
                                     )
                                 }
 
-                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Row(
+                                    modifier = Modifier
+                                        .horizontalScroll(rememberScrollState())
+                                        .padding(bottom = 4.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
                                     filterOptions.forEach { opt ->
                                         FilterChip(
                                             selected = selectedFilter == opt,
@@ -538,7 +543,15 @@ fun StatsScreen() {
                                                     customEndDate = null
                                                 }
                                             },
-                                            label = { Text(opt, fontSize = 12.sp) },
+                                            label = {
+                                                Text(
+                                                    text = opt,
+                                                    fontSize = 13.sp,
+                                                    maxLines = 1,
+                                                    softWrap = false
+                                                )
+                                            },
+                                            modifier = Modifier.height(36.dp),
                                             colors = FilterChipDefaults.filterChipColors(
                                                 selectedContainerColor = Color(0xFF4CAF50),
                                                 selectedLabelColor = Color.White,
@@ -570,7 +583,6 @@ fun StatsScreen() {
                                 }
                             }
                         }
-                        // Metric dropdown
                         StatsCard {
                             Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                                 Text(metricText, fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(bottom = 8.dp))
@@ -587,22 +599,34 @@ fun StatsScreen() {
                                         shape = RoundedCornerShape(12.dp),
                                         colors = OutlinedTextFieldDefaults.colors(
                                             focusedBorderColor = Color(0xFF4CAF50),
-                                            unfocusedBorderColor = Color(0xFFE0E0E0)
+                                            unfocusedBorderColor = Color(0xFFE0E0E0),
+                                            focusedTextColor = Color.Black,
+                                            unfocusedTextColor = Color.Black,
+                                            disabledTextColor = Color.Black
                                         )
                                     )
                                     ExposedDropdownMenu(
                                         expanded = metricDropdownExpanded,
-                                        onDismissRequest = { metricDropdownExpanded = false }
+                                        onDismissRequest = { metricDropdownExpanded = false },
+                                        containerColor = Color.White
                                     ) {
                                         metricOptions.forEach { m ->
                                             DropdownMenuItem(
                                                 text = {
                                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                                        Text(m.icon, fontSize = 16.sp)
+                                                        Text(m.icon, fontSize = 16.sp, color = Color.Black)
                                                         Spacer(Modifier.width(8.dp))
-                                                        Text(m.name, fontSize = 14.sp)
+                                                        Text(
+                                                            text = m.name,
+                                                            fontSize = 14.sp,
+                                                            color = Color.Black
+                                                        )
                                                         Spacer(Modifier.width(4.dp))
-                                                        Text(m.unit, fontSize = 12.sp, color = Color.Gray)
+                                                        Text(
+                                                            text = m.unit,
+                                                            fontSize = 12.sp,
+                                                            color = Color.Black
+                                                        )
                                                     }
                                                 },
                                                 onClick = {
@@ -616,13 +640,11 @@ fun StatsScreen() {
                             }
                         }
 
-                        // Chart
                         if (filteredData.isNotEmpty() && visibleStartIndex < filteredData.size) {
                             val endIdx = minOf(visibleEndIndex, filteredData.size)
                             val visibleData = if (visibleStartIndex < endIdx) filteredData.subList(visibleStartIndex, endIdx) else emptyList()
                             val metric = currentMetric()
 
-                            // Get year from first record in filtered data
                             val dataYear = try {
                                 val firstRecord = filteredData.firstOrNull()
                                 if (firstRecord != null) {
@@ -651,7 +673,6 @@ fun StatsScreen() {
                                                 Spacer(Modifier.width(8.dp))
                                                 Text(metric.name, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1B5E20))
                                             }
-                                            // Show year instead of unit
                                             Text(
                                                 text = if (dataYear.isNotEmpty()) "$dataYear" else "",
                                                 fontSize = 14.sp,
@@ -785,7 +806,6 @@ fun StatsScreen() {
                                 }
                             }
                         }
-                        // Recent records list
                         if (filteredData.isNotEmpty()) {
                             StatsCard {
                                 Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
@@ -815,14 +835,13 @@ fun StatsScreen() {
             }
         }
     }
-    // Period Info Dialog
     if (showPeriodInfoDialog) {
         AlertDialog(
             onDismissRequest = { showPeriodInfoDialog = false },
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        painter = painterResource(R.drawable.ic_end_card),
+                        imageVector = Icons.Default.Info,
                         contentDescription = null,
                         modifier = Modifier.size(24.dp),
                         tint = Color(0xFF4CAF50)
@@ -849,7 +868,6 @@ fun StatsScreen() {
                         lineHeight = 20.sp
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    // List of filter options
                     Card(
                         colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
                         shape = RoundedCornerShape(8.dp)
@@ -863,7 +881,6 @@ fun StatsScreen() {
                         }
                     }
                     Spacer(modifier = Modifier.height(12.dp))
-                    // How to use Custom range
                     Card(
                         colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9)),
                         shape = RoundedCornerShape(8.dp)
@@ -877,7 +894,6 @@ fun StatsScreen() {
                         )
                     }
                     Spacer(modifier = Modifier.height(12.dp))
-                    // Note
                     Text(
                         text = periodInfoNote,
                         fontSize = 12.sp,
@@ -899,7 +915,6 @@ fun StatsScreen() {
             shape = RoundedCornerShape(16.dp)
         )
     }
-    // Custom date picker dialog
     if (showDatePicker) {
         AlertDialog(
             onDismissRequest = { showDatePicker = false },
@@ -1039,7 +1054,6 @@ fun StatsScreen() {
     }
 }
 
-// !! Reusable UI components
 
 @Composable
 fun StatsCard(content: @Composable () -> Unit) {
@@ -1158,7 +1172,6 @@ fun MetricChip(label: String, color: Color) {
     }
 }
 
-// Date formatters
 fun fmtDateTime(s: String): String = try {
     SimpleDateFormat("dd/MM HH:mm", Locale.getDefault())
         .format(SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse(s) ?: Date())

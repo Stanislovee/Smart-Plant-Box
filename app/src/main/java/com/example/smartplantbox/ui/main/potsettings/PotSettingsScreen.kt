@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -89,7 +90,6 @@ fun PotSettingsScreen(
     val noText = stringResource(R.string.no)
     val supplementalLightingText = stringResource(R.string.lamp_status_label)
 
-    // Dialog texts
     val lightDialogTitle = stringResource(R.string.light_dialog_title)
     val lightDialogShort = stringResource(R.string.light_dialog_short)
     val lightDialogDescription = stringResource(R.string.light_dialog_description)
@@ -111,7 +111,6 @@ fun PotSettingsScreen(
     var isSaving by remember { mutableStateOf(false) }
     var isUpdating by remember { mutableStateOf(false) }
 
-    // Display real sensor data (read-only)
     var isLampOn by remember { mutableStateOf(false) }
     var airTemperature by remember { mutableIntStateOf(0) }
     var airHumidity by remember { mutableIntStateOf(0) }
@@ -119,25 +118,19 @@ fun PotSettingsScreen(
     var waterTank by remember { mutableStateOf(noText) }
     var isWateringOn by remember { mutableStateOf(false) }
 
-    // Real soil humidity from API (current soil moisture - not changed by slider)
     var realSoilHumidity by remember { mutableIntStateOf(0) }
 
-    // Soil threshold from API (your soil moisture - changed by slider)
     var soilThresholdFromApi by remember { mutableIntStateOf(60) }
 
-    // Temporary variable for slider (copy of soilThresholdFromApi)
     var tempSoilThreshold by remember { mutableIntStateOf(60) }
 
-    // Light threshold
     var lightThreshold by remember { mutableFloatStateOf(50f) }
 
-    // Dialog visibility states
     var showLightInfoDialog by remember { mutableStateOf(false) }
     var showSoilInfoDialog by remember { mutableStateOf(false) }
 
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Apply loaded data snapshot to all state variables
     fun applyDeviceData(data: DeviceData) {
         airTemperature = data.airTemperature
         airHumidity = data.airHumidity
@@ -146,16 +139,11 @@ fun PotSettingsScreen(
         isLampOn = data.isLampOn
         waterTank = if (data.waterTank.equals("YES", ignoreCase = true)) yesText else noText
         isWateringOn = data.isWateringOn
-
-        // Real soil state (current) - not touched by slider
         realSoilHumidity = data.soilHumidity.toInt()
-
-        // Soil threshold (your) - changed by slider
         soilThresholdFromApi = data.soilThreshold.toInt()
         tempSoilThreshold = soilThresholdFromApi
     }
 
-    // Fetch all sensor data from the server
     suspend fun reload() {
         loadDeviceData(context, repository, deviceSN) { data ->
             if (data != null) applyDeviceData(data)
@@ -163,7 +151,6 @@ fun PotSettingsScreen(
         }
     }
 
-    // Load data on first composition
     LaunchedEffect(Unit) {
         loadDeviceData(context, repository, deviceSN) { data ->
             if (data != null) applyDeviceData(data)
@@ -172,7 +159,6 @@ fun PotSettingsScreen(
         }
     }
 
-    // Send "update" command and reload sensor values
     fun updateDeviceData() {
         scope.launch {
             isUpdating = true; errorMessage = null
@@ -199,7 +185,6 @@ fun PotSettingsScreen(
         }
     }
 
-    // Send light threshold, soil threshold and lamp commands sequentially
     fun saveSettings() {
         scope.launch {
             isSaving = true; errorMessage = null
@@ -226,7 +211,6 @@ fun PotSettingsScreen(
                     isSaving = false; return@launch
                 }
 
-                // After successful save, update soilThresholdFromApi
                 soilThresholdFromApi = tempSoilThreshold
 
                 // 3 — Lamp status
@@ -236,7 +220,6 @@ fun PotSettingsScreen(
                     isSaving = false; return@launch
                 }
 
-                // All succeeded
                 snackbarHostState.showSnackbar(dataHasBeenSavedText, duration = SnackbarDuration.Short)
                 delay(1700)
                 onSettingsSaved()
@@ -296,7 +279,6 @@ fun PotSettingsScreen(
                         }
                     }
 
-                    // Device info card
                     SettingsCard {
                         Row(
                             modifier = Modifier.fillMaxWidth().padding(20.dp),
@@ -329,7 +311,6 @@ fun PotSettingsScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Air temperature & humidity card
                     SettingsCard {
                         Row(
                             modifier = Modifier.fillMaxWidth().padding(20.dp),
@@ -357,10 +338,8 @@ fun PotSettingsScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Light level + lamp status card
                     SettingsCard {
                         Column(modifier = Modifier.fillMaxWidth().padding(20.dp)) {
-                            // Header row with icon and title
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier.padding(bottom = 12.dp)
@@ -380,7 +359,6 @@ fun PotSettingsScreen(
                                 )
                             }
 
-                            // Current light level
                             SensorRow(
                                 label = currentLightingLevelText,
                                 value = "$lightLevel%"
@@ -388,7 +366,6 @@ fun PotSettingsScreen(
 
                             Spacer(modifier = Modifier.height(12.dp))
 
-                            // Lamp status
                             SensorRow(
                                 label = supplementalLightingText,
                                 value = if (isLampOn) onText else offText,
@@ -399,7 +376,6 @@ fun PotSettingsScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Light threshold slider card
                     SettingsCard {
                         Column(modifier = Modifier.fillMaxWidth().padding(20.dp)) {
                             Row(
@@ -412,9 +388,8 @@ fun PotSettingsScreen(
                                     Spacer(modifier = Modifier.width(12.dp))
                                     Text(setLightThresholdText, fontSize = 18.sp, fontWeight = FontWeight.Medium, color = Color(0xFF1B5E20))
                                 }
-                                // Clickable gear icon
                                 Image(
-                                    painter = painterResource(R.drawable.ic_end_card),
+                                    imageVector = Icons.Default.Info,
                                     contentDescription = "Info",
                                     modifier = Modifier
                                         .size(24.dp)
@@ -440,7 +415,6 @@ fun PotSettingsScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Soil moisture info card
                     SettingsCard {
                         Column(modifier = Modifier.fillMaxWidth().padding(20.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 8.dp)) {
@@ -448,7 +422,6 @@ fun PotSettingsScreen(
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Text(soilMoistureText, fontSize = 18.sp, fontWeight = FontWeight.Medium, color = Color(0xFF1B5E20))
                             }
-                            // Current soil moisture
                             SensorRow(label = currentSoilMoistureText, value = "${realSoilHumidity}%")
                             Spacer(modifier = Modifier.height(12.dp))
                             SensorRow(
@@ -467,7 +440,6 @@ fun PotSettingsScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Soil threshold slider card
                     SettingsCard {
                         Column(modifier = Modifier.fillMaxWidth().padding(20.dp)) {
                             Row(
@@ -480,9 +452,8 @@ fun PotSettingsScreen(
                                     Spacer(modifier = Modifier.width(12.dp))
                                     Text(setSoilMoistureText, fontSize = 18.sp, fontWeight = FontWeight.Medium, color = Color(0xFF1B5E20))
                                 }
-                                // Clickable gear icon
                                 Image(
-                                    painter = painterResource(R.drawable.ic_end_card),
+                                    imageVector = Icons.Default.Info,
                                     contentDescription = "Info",
                                     modifier = Modifier
                                         .size(24.dp)
@@ -531,7 +502,6 @@ fun PotSettingsScreen(
         }
     }
 
-    // Light Info Dialog
     if (showLightInfoDialog) {
         AlertDialog(
             onDismissRequest = { showLightInfoDialog = false },
@@ -558,7 +528,6 @@ fun PotSettingsScreen(
                         .fillMaxWidth()
                         .verticalScroll(rememberScrollState())
                 ) {
-                    // Short description card
                     Card(
                         colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD)),
                         shape = RoundedCornerShape(8.dp)
@@ -572,7 +541,6 @@ fun PotSettingsScreen(
                     }
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // Full description
                     Text(
                         text = lightDialogDescription,
                         fontSize = 13.sp,
@@ -581,7 +549,6 @@ fun PotSettingsScreen(
                     )
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // Recommendation card
                     Card(
                         colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9)),
                         shape = RoundedCornerShape(8.dp)
@@ -596,7 +563,6 @@ fun PotSettingsScreen(
                     }
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // Current value
                     Text(
                         text = String.format(lightDialogCurrent, lightLevel),
                         fontSize = 13.sp,
@@ -619,7 +585,6 @@ fun PotSettingsScreen(
         )
     }
 
-    // Soil Info Dialog
     if (showSoilInfoDialog) {
         AlertDialog(
             onDismissRequest = { showSoilInfoDialog = false },
@@ -646,7 +611,6 @@ fun PotSettingsScreen(
                         .fillMaxWidth()
                         .verticalScroll(rememberScrollState())
                 ) {
-                    // Short description card
                     Card(
                         colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD)),
                         shape = RoundedCornerShape(8.dp)
@@ -660,7 +624,6 @@ fun PotSettingsScreen(
                     }
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // Full description
                     Text(
                         text = soilDialogDescription,
                         fontSize = 13.sp,
@@ -669,7 +632,6 @@ fun PotSettingsScreen(
                     )
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // Recommendation card
                     Card(
                         colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9)),
                         shape = RoundedCornerShape(8.dp)
@@ -684,7 +646,6 @@ fun PotSettingsScreen(
                     }
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // Current threshold
                     Text(
                         text = String.format(soilDialogCurrentThreshold, tempSoilThreshold),
                         fontSize = 13.sp,
@@ -695,7 +656,6 @@ fun PotSettingsScreen(
                     Divider(color = Color(0xFFE0E0E0))
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Additional info
                     Text(
                         text = "$soilDialogWaterTank: $waterTank",
                         fontSize = 13.sp,

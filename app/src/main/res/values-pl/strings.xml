@@ -8,7 +8,7 @@
     <string name="language">Język</string>
 
     <!-- Bottom Navigation -->
-    <string name="bottom_nav_home">Strona główna</string>
+    <string name="bottom_nav_home">Główna</string>
     <string name="bottom_nav_statistic">Statystyki</string>
     <string name="bottom_nav_images">Zdjęcia</string>
     <string name="bottom_nav_profile">Profil</string>
@@ -122,7 +122,7 @@
     <!-- Home screen -->
     <string name="home_title">Strona główna</string>
     <string name="no_device">Brak podłączonego urządzenia</string>
-    <string name="no_device_desc">Kliknij przycisk poniżej, aby podłączyć pierwszą inteligentną doniczkę</string>
+    <string name="no_device_desc">Kliknij przycisk poniżej, aby podłączyć pierwszą inteligentną doniczkę.</string>
     <string name="connect_device">Podłącz urządzenie</string>
     <string name="add_more_device">Dodaj kolejne urządzenie</string>
     <string name="connect_first_device">Podłącz pierwsze urządzenie</string>
@@ -134,9 +134,10 @@
     <string name="connect">Połącz</string>
     <string name="edit_device_name">Edytuj nazwę urządzenia</string>
     <string name="device_name">Nazwa urządzenia</string>
-    <string name="max_16_chars">Maks. 16 znaków (tylko litery, cyfry i spacje)</string>
+    <string name="max_16_chars">Maks. 27 znaków (tylko litery, cyfry i spacje)</string>
     <string name="name_cannot_be_empty">Nazwa nie może być pusta</string>
     <string name="delete_device_title">Usuń urządzenie</string>
+    <string name="no_keys_found">Brak kluczy dla tego emaila</string>
     <string name="delete_device_confirm">Czy na pewno chcesz usunąć \"%s\"? Tej operacji nie można cofnąć.</string>
     <string name="connect_your_first_device">Podłącz swoje pierwsze urządzenie</string>
     <string name="add_new_device">Dodaj nowe urządzenie</string>
@@ -261,11 +262,11 @@
     <string name="failed_to_update_name">Nie udało się zaktualizować nazwy</string>
     <string name="password_changed_successfully">Hasło zmienione pomyślnie! Zaloguj się ponownie.</string>
     <string name="minimum_25_characters">Maksymalnie 25 znaków</string>
-    <string name="maximum_16_characters">Maksymalnie 16 znaków</string>
+    <string name="maximum_16_characters">Maksymalnie 25 znaków</string>
 
     <!-- Image Screen -->
     <string name="plant_gallery">Galeria Roślin</string>
-    <string name="photos_from_smart_pot">Zdjęcia z Twojej inteligentnej doniczki</string>
+    <string name="photos_from_smart_pot">Zdjęcia roślin z Twojej inteligentnej doniczki</string>
     <string name="device">Urządzenie</string>
     <string name="refresh">Odśwież</string>
     <string name="auto_capture_interval">Automatyczny interwał zdjęć</string>
@@ -288,7 +289,8 @@
     <string name="failed_to_set_interval">Nie udało się ustawić interwału</string>
     <string name="failed_to_capture_photo">Nie udało się wykonać zdjęcia</string>
     <string name="network_error">Błąd sieci</string>
-    <string name="interval_set_to">Interwał ustawiony na co %d godzin(y)</string>
+    <string name="retry">Spróbuj ponownie</string>
+    <string name="interval_set_to">Interwał ustawiony na co </string> <!---->>
 
     <!-- Photo Guide Dialog -->
     <string name="photo_guide_title">Przewodnik po galerii zdjęć</string>
@@ -355,6 +357,8 @@
     <string name="watering_off">Podlewanie: Wył.</string>
     <string name="celsius">°C</string>
     <string name="percent">%</string>
+    <string name="no_data_found">Brak danych</string>
+    <string name="analise_statistic">Analizuj dane ze swojej inteligentnej doniczki</string>
 
     <!-- Period Info Dialog -->
     <string name="period_info_title">Filtrowanie statystyk według daty</string>
@@ -366,4 +370,48 @@
     <string name="period_info_custom">• Inny — pozwala wybrać własny zakres dat</string>
     <string name="period_info_how_to">📌 Jak używać zakresu Inny:\n\n1. Naciśnij Inny — otworzy się kalendarz\n2. Wybierz datę początkową → naciśnij Dalej\n3. Wybierz datę końcową → naciśnij Zastosuj\n\nWykres pokaże dane od daty początkowej do dnia przed datą końcową (np. 03.05.2026 – 10.05.2026 pokaże dane od 03.05 do 09.05).</string>
     <string name="period_info_note">Tylko dane zarejestrowane w wybranym okresie zostaną wyświetlone na wykresie i w statystykach.</string>
+
+    <!-- Validation Errors -->
+    <string name="error_full_name_required">Pełna nazwa jest wymagana</string>
+    <string name="error_full_name_max_25">Pełna nazwa nie może przekraczać 25 znaków</string>
+    <string name="error_full_name_invalid">Pełna nazwa może zawierać tylko litery i spacje</string>
+    <string name="error_full_name_forbidden">Nazwa zawiera zabronione słowa</string>
+    <string name="error_full_name_invalid_chars">Nazwa zawiera nieprawidłowe znaki</string>
+
+    <string name="error_email_required">Email jest wymagany</string>
+    <string name="error_email_invalid_domain">Email musi być @gmail.com</string>
+    <string name="error_email_empty_local">Część lokalna emaila nie może być pusta</string>
+    <string name="error_email_local_max_25">Część lokalna emaila nie może przekraczać 25 znaków</string>
+    <string name="error_email_invalid_format">Email może zawierać tylko litery, cyfry oraz . _ -</string>
+    <string name="error_email_forbidden">Email zawiera zabronione słowa</string>
+
+    <string name="error_password_required">Hasło jest wymagane</string>
+    <string name="error_password_min_8">Hasło musi mieć co najmniej 8 znaków</string>
+    <string name="error_password_max_25">Hasło nie może przekraczać 25 znaków</string>
+    <string name="error_password_forbidden">Hasło zawiera zabronione słowa</string>
+    <string name="error_password_no_spaces">Bez spacji</string>
+    <string name="error_password_min_8_no_spaces">Minimum 8 znaków, bez spacji</string>
+
+    <string name="error_confirm_password_required">Potwierdź swoje hasło</string>
+    <string name="error_passwords_do_not_match">Hasła nie są zgodne</string>
+
+    <!-- Auth Errors -->
+    <string name="error_incorrect_password">Nieprawidłowe hasło</string>
+    <string name="error_user_not_found">Użytkownik nie znaleziony</string>
+    <string name="error_network">Błąd sieci</string>
+    <string name="error_email_exists">Email już istnieje</string>
+    <string name="error_fields_required">Wszystkie pola muszą być wypełnione</string>
+    <string name="error_registration_failed">Rejestracja nie powiodła się</string>
+    <string name="error_login_failed">Logowanie nie powiodło się</string>
+    <string name="registration_success">Rejestracja udana! Proszę się zalogować.</string>
+
+    <!-- Forgot Password Strings -->
+    <string name="forgot_code_sent">Kod wysłany na %s</string>
+    <string name="forgot_code_verified">✓ Kod zweryfikowany!</string>
+    <string name="forgot_code_resent">✓ Nowy kod wysłany na Twój email</string>
+    <string name="forgot_invalid_code">Nieprawidłowy kod. Spróbuj ponownie.</string>
+    <string name="forgot_resend_failed">Nie udało się wysłać kodu ponownie</string>
+    <string name="forgot_password_changed">✓ Hasło zmienione pomyślnie! Możesz się teraz zalogować.</string>
+    <string name="forgot_server_error">Błąd serwera. Spróbuj ponownie później.</string>
+    <string name="forgot_request_failed">Żądanie nie powiodło się. Spróbuj ponownie.</string>
 </resources>

@@ -33,6 +33,7 @@ import androidx.core.content.edit
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.smartplantbox.R
 import com.example.smartplantbox.data.repository.AuthRepositoryImpl
+import com.example.smartplantbox.domain.utils.ValidationUtils
 import com.example.smartplantbox.presentation.auth.AuthViewModel
 import com.example.smartplantbox.ui.theme.SmartPlantBoxTheme
 import com.example.smartplantbox.utils.LocalizationManager
@@ -82,6 +83,11 @@ fun ProfileScreen(onLogoutClick: () -> Unit) {
     val nameUpdatedSuccessfully = stringResource(R.string.name_updated_successfully)
     val failedToUpdateName = stringResource(R.string.failed_to_update_name)
 
+    val errorPasswordRequired = stringResource(R.string.error_password_required)
+    val errorPasswordMin8 = stringResource(R.string.error_password_min_8)
+    val errorPasswordMax25 = stringResource(R.string.error_password_max_25)
+    val errorPasswordForbidden = stringResource(R.string.error_password_forbidden)
+
     var showLanguageDialog by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
@@ -99,7 +105,11 @@ fun ProfileScreen(onLogoutClick: () -> Unit) {
     var currentPassword by remember { mutableStateOf("") }
     var newPassword by remember { mutableStateOf("") }
     var confirmNewPassword by remember { mutableStateOf("") }
-    var passwordError by remember { mutableStateOf<String?>(null) }
+
+    var currentPasswordError by remember { mutableStateOf<String?>(null) }
+    var newPasswordError by remember { mutableStateOf<String?>(null) }
+    var confirmPasswordError by remember { mutableStateOf<String?>(null) }
+
     var isChangingPassword by remember { mutableStateOf(false) }
     var isUpdatingPassword by remember { mutableStateOf(false) }
 
@@ -108,6 +118,22 @@ fun ProfileScreen(onLogoutClick: () -> Unit) {
     var isConfirmPasswordVisible by remember { mutableStateOf(false) }
 
     fun filterPassword(input: String) = input.filter { !it.isWhitespace() }
+
+    fun validateNewPassword(password: String): String? {
+        return when {
+            password.isBlank() -> errorPasswordRequired
+            password.length < 8 -> errorPasswordMin8
+            password.length > 25 -> errorPasswordMax25
+            ValidationUtils.containsSqlInjection(password) -> errorPasswordForbidden
+            else -> null
+        }
+    }
+
+    fun validateConfirmPassword(password: String, confirmPassword: String): String? {
+        return if (password != confirmPassword) {
+            passwordsDoNotMatch
+        } else null
+    }
 
     fun changeLanguage(language: LocalizationManager.Language) {
         LocalizationManager.setLanguage(context, language)
@@ -166,6 +192,14 @@ fun ProfileScreen(onLogoutClick: () -> Unit) {
         } catch (_: Exception) { false }
     }
 
+    fun validatePasswordsBeforeSave(): Boolean {
+        currentPasswordError = if (currentPassword.isBlank()) currentPasswordRequired else null
+        newPasswordError = validateNewPassword(newPassword)
+        confirmPasswordError = validateConfirmPassword(newPassword, confirmNewPassword)
+
+        return currentPasswordError == null && newPasswordError == null && confirmPasswordError == null
+    }
+
     fun saveChanges() {
         if (isEditingName && tempName.isNotBlank() && tempName.length <= 25 && !isUpdatingName) {
             isUpdatingName = true
@@ -182,37 +216,32 @@ fun ProfileScreen(onLogoutClick: () -> Unit) {
         }
 
         if (isChangingPassword && !isUpdatingPassword) {
-            passwordError = when {
-                currentPassword.isBlank() -> currentPasswordRequired
-                newPassword.isBlank() -> newPasswordRequired
-                confirmNewPassword.isBlank() -> pleaseConfirmPassword
-                currentPassword.contains(" ") -> currentPasswordCannotContainSpaces
-                newPassword.contains(" ") -> newPasswordCannotContainSpaces
-                confirmNewPassword.contains(" ") -> confirmPasswordCannotContainSpaces
-                newPassword.length < 8 -> passwordMustBe8Characters
-                newPassword != confirmNewPassword -> passwordsDoNotMatch
-                else -> null
+            if (!validatePasswordsBeforeSave()) {
+                return
             }
-            if (passwordError != null) return
 
             isUpdatingPassword = true
             scope.launch {
                 try {
                     if (!verifyCurrentPassword(userEmail, currentPassword)) {
-                        passwordError = currentPasswordIncorrect; isUpdatingPassword = false; return@launch
+                        currentPasswordError = currentPasswordIncorrect
+                        isUpdatingPassword = false
+                        return@launch
                     }
                     val (ok, msg) = updatePasswordViaAPI(newPassword)
                     if (ok) {
                         android.widget.Toast.makeText(context, passwordChangedSuccessfully, android.widget.Toast.LENGTH_LONG).show()
                         currentPassword = ""; newPassword = ""; confirmNewPassword = ""
-                        isChangingPassword = false; passwordError = null
+                        currentPasswordError = null; newPasswordError = null; confirmPasswordError = null
+                        isChangingPassword = false
                         delay(2000)
-                        authViewModel.logout(); onLogoutClick()
+                        authViewModel.logout(context)
+                        onLogoutClick()
                     } else {
-                        passwordError = msg ?: failedToChangePassword
+                        currentPasswordError = msg ?: failedToChangePassword
                     }
                 } catch (e: Exception) {
-                    passwordError = "Error: ${e.message}"
+                    currentPasswordError = "Error: ${e.message}"
                 } finally { isUpdatingPassword = false }
             }
         }
@@ -383,7 +412,14 @@ fun ProfileScreen(onLogoutClick: () -> Unit) {
 
                             Row(
                                 modifier = Modifier.fillMaxWidth().clickable {
-                                    if (!isUpdatingPassword) { isChangingPassword = !isChangingPassword; passwordError = null }
+                                    if (!isUpdatingPassword) {
+                                        isChangingPassword = !isChangingPassword
+                                        if (!isChangingPassword) {
+                                            currentPasswordError = null
+                                            newPasswordError = null
+                                            confirmPasswordError = null
+                                        }
+                                    }
                                 },
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
@@ -397,11 +433,15 @@ fun ProfileScreen(onLogoutClick: () -> Unit) {
 
                                 PasswordField(
                                     value = currentPassword,
-                                    onValueChange = { currentPassword = filterPassword(it); if (passwordError?.contains("Current") == true) passwordError = null },
+                                    onValueChange = {
+                                        currentPassword = filterPassword(it)
+                                        currentPasswordError = if (currentPassword.isBlank()) currentPasswordRequired else null
+                                    },
                                     label = currentPasswordText,
                                     isVisible = isCurrentPasswordVisible,
                                     onToggleVisibility = { isCurrentPasswordVisible = !isCurrentPasswordVisible },
-                                    isError = passwordError != null && passwordError!!.contains("Current"),
+                                    isError = currentPasswordError != null,
+                                    errorText = currentPasswordError,
                                     enabled = !isUpdatingPassword
                                 )
 
@@ -409,14 +449,19 @@ fun ProfileScreen(onLogoutClick: () -> Unit) {
 
                                 PasswordField(
                                     value = newPassword,
-                                    onValueChange = { newPassword = filterPassword(it); if (passwordError?.contains("New") == true || passwordError?.contains("8") == true) passwordError = null },
+                                    onValueChange = {
+                                        newPassword = filterPassword(it)
+                                        newPasswordError = validateNewPassword(newPassword)
+                                        if (confirmNewPassword.isNotEmpty()) {
+                                            confirmPasswordError = validateConfirmPassword(newPassword, confirmNewPassword)
+                                        }
+                                    },
                                     label = newPasswordText,
                                     isVisible = isNewPasswordVisible,
                                     onToggleVisibility = { isNewPasswordVisible = !isNewPasswordVisible },
-                                    isError = passwordError != null && (passwordError!!.contains("New") || passwordError!!.contains("8")),
-                                    supportingText = if (passwordError != null && (passwordError!!.contains("New") || passwordError!!.contains("8")))
-                                        passwordError else min8CharsNoSpaces,
-                                    isErrorText = passwordError != null && (passwordError!!.contains("New") || passwordError!!.contains("8")),
+                                    isError = newPasswordError != null,
+                                    errorText = newPasswordError,
+                                    supportingText = min8CharsNoSpaces,
                                     enabled = !isUpdatingPassword
                                 )
 
@@ -424,22 +469,18 @@ fun ProfileScreen(onLogoutClick: () -> Unit) {
 
                                 PasswordField(
                                     value = confirmNewPassword,
-                                    onValueChange = { confirmNewPassword = filterPassword(it); if (passwordError?.contains("match") == true || passwordError?.contains("Confirm") == true) passwordError = null },
+                                    onValueChange = {
+                                        confirmNewPassword = filterPassword(it)
+                                        confirmPasswordError = validateConfirmPassword(newPassword, confirmNewPassword)
+                                    },
                                     label = confirmNewPasswordText,
                                     isVisible = isConfirmPasswordVisible,
                                     onToggleVisibility = { isConfirmPasswordVisible = !isConfirmPasswordVisible },
-                                    isError = passwordError != null && (passwordError!!.contains("match") || passwordError!!.contains("Confirm")),
+                                    isError = confirmPasswordError != null,
+                                    errorText = confirmPasswordError,
+                                    supportingText = min8CharsNoSpaces,
                                     enabled = !isUpdatingPassword
                                 )
-
-                                if (passwordError != null &&
-                                    !passwordError!!.contains("Current") &&
-                                    !passwordError!!.contains("New") &&
-                                    !passwordError!!.contains("match") &&
-                                    !passwordError!!.contains("8")
-                                ) {
-                                    Text(passwordError!!, color = Color(0xFFD32F2F), fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
-                                }
 
                                 if (isUpdatingPassword) {
                                     Box(modifier = Modifier.fillMaxWidth().padding(top = 8.dp), contentAlignment = Alignment.Center) {
@@ -530,7 +571,7 @@ fun ProfileScreen(onLogoutClick: () -> Unit) {
             confirmButton = {
                 Button(
                     onClick = {
-                        authViewModel.logout()
+                        authViewModel.logout(context)
                         onLogoutClick()
                         showLogoutDialog = false
                     },
@@ -559,8 +600,8 @@ private fun PasswordField(
     isVisible: Boolean,
     onToggleVisibility: () -> Unit,
     isError: Boolean = false,
+    errorText: String? = null,
     supportingText: String? = null,
-    isErrorText: Boolean = false,
     enabled: Boolean = true
 ) {
     OutlinedTextField(
@@ -580,8 +621,11 @@ private fun PasswordField(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         isError = isError,
-        supportingText = supportingText?.let {
-            { Text(it, color = if (isErrorText) MaterialTheme.colorScheme.error else Color.Black, fontSize = if (isErrorText) 12.sp else 10.sp) }
+        supportingText = {
+            when {
+                errorText != null -> Text(errorText, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                supportingText != null -> Text(supportingText, fontSize = 10.sp, color = Color.Black)
+            }
         },
         enabled = enabled,
         colors = OutlinedTextFieldDefaults.colors(

@@ -12,8 +12,6 @@ class UserPreferences(context: Context) {
         private const val KEY_PASSWORD = "saved_password"
         private const val KEY_REMEMBER_ME = "remember_me"
     }
-
-    // Save credentials for Remember Me feature
     fun saveRememberMeCredentials(email: String, password: String, rememberMe: Boolean) {
         prefs.edit().apply {
             putString(KEY_EMAIL, if (rememberMe) email else null)
@@ -29,7 +27,6 @@ class UserPreferences(context: Context) {
 
     fun isRememberMeEnabled(): Boolean = prefs.getBoolean(KEY_REMEMBER_ME, false)
 
-    // Clear saved credentials on logout
     fun clearRememberMeCredentials() {
         prefs.edit().apply {
             remove(KEY_EMAIL)

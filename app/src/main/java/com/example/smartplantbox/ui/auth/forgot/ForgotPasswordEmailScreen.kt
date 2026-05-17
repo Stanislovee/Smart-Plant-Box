@@ -49,6 +49,17 @@ fun ForgotPasswordEmailScreen(
     val backIconDesc = stringResource(R.string.back_icon)
     val secureIconDesc = stringResource(R.string.secure_icon)
 
+    val errorEmailRequired = stringResource(R.string.error_email_required)
+    val errorEmailInvalidDomain = stringResource(R.string.error_email_invalid_domain)
+    val errorEmailEmptyLocal = stringResource(R.string.error_email_empty_local)
+    val errorEmailLocalMax25 = stringResource(R.string.error_email_local_max_25)
+    val errorEmailInvalidFormat = stringResource(R.string.error_email_invalid_format)
+    val errorEmailForbidden = stringResource(R.string.error_email_forbidden)
+
+    LaunchedEffect(Unit) {
+        viewModel.resetEmailState()
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -159,8 +170,16 @@ fun ForgotPasswordEmailScreen(
                 shape = RoundedCornerShape(12.dp),
                 singleLine = true,
                 isError = emailState.emailError != null,
-                supportingText = emailState.emailError?.let {
-                    { Text(it, color = MaterialTheme.colorScheme.error) }
+                supportingText = {
+                    when (emailState.emailError) {
+                        "Email is required" -> Text(errorEmailRequired, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                        "Email must be @gmail.com" -> Text(errorEmailInvalidDomain, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                        "Email local part cannot be empty" -> Text(errorEmailEmptyLocal, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                        "Email local part must not exceed 25 characters" -> Text(errorEmailLocalMax25, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                        "Email can only contain letters, numbers, and . _ -" -> Text(errorEmailInvalidFormat, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                        "Email contains forbidden words" -> Text(errorEmailForbidden, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                        else -> {}
+                    }
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 enabled = !emailState.isLoading,
@@ -173,7 +192,7 @@ fun ForgotPasswordEmailScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            if (emailState.errorMessage != null) {
+            if (emailState.errorMessage != null && emailState.successMessage == null) {
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -182,12 +201,23 @@ fun ForgotPasswordEmailScreen(
                         containerColor = Color(0xFFFFEBEE)
                     )
                 ) {
-                    Text(
-                        text = emailState.errorMessage!!,
-                        color = Color(0xFFD32F2F),
+                    Row(
                         modifier = Modifier.padding(12.dp),
-                        fontSize = 14.sp
-                    )
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_error),
+                            null,
+                            tint = Color(0xFFD32F2F),
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = emailState.errorMessage!!,
+                            color = Color(0xFFD32F2F),
+                            fontSize = 14.sp
+                        )
+                    }
                 }
             }
 
@@ -200,12 +230,23 @@ fun ForgotPasswordEmailScreen(
                         containerColor = Color(0xFFE8F5E9)
                     )
                 ) {
-                    Text(
-                        text = emailState.successMessage!!,
-                        color = Color(0xFF2E7D32),
+                    Row(
                         modifier = Modifier.padding(12.dp),
-                        fontSize = 14.sp
-                    )
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_check),
+                            null,
+                            tint = Color(0xFF2E7D32),
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = emailState.successMessage!!,
+                            color = Color(0xFF2E7D32),
+                            fontSize = 14.sp
+                        )
+                    }
                 }
             }
 

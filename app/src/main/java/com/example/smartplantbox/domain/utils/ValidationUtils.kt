@@ -11,7 +11,7 @@ object ValidationUtils {
     private val dangerousChars = listOf(
         "'", "\"", ";", "--", "/*", "*/", "=", ">", "<", "(", ")"
     )
-    private val allowedDomains = listOf("@gmail.com", "@example.com")
+    private val allowedDomains = listOf("@gmail.com",)
     fun containsSqlInjection(input: String): Boolean {
         val lowerInput = input.lowercase()
         return sqlBlacklist.any { lowerInput.contains(it) }
@@ -32,7 +32,7 @@ object ValidationUtils {
     fun validateEmail(email: String): String? {
         return when {
             email.isBlank() -> "Email is required"
-            !allowedDomains.any { email.endsWith(it) } -> "Email must be @gmail.com" // Повідомлення без вказівки конкретних доменів
+            !allowedDomains.any { email.endsWith(it) } -> "Email must be @gmail.com"
             else -> {
                 val domain = allowedDomains.find { email.endsWith(it) } ?: return "Email must be valid"
                 val localPart = email.substringBefore(domain)

@@ -4,6 +4,14 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        create("release") {
+            storeFile = file("/Users/stanislavpriadko/Desktop/smartplantbox.jks")
+            storePassword = "Dromdrom40!"
+            keyAlias = "smartplantbox"
+            keyPassword = "Dromdrom40!"
+        }
+    }
     namespace = "com.example.smartplantbox"
     compileSdk {
         version = release(36) {
@@ -24,6 +32,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -29,7 +30,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.smartplantbox.R
 import com.example.smartplantbox.presentation.auth.ForgotPasswordViewModel
 import com.example.smartplantbox.ui.theme.SmartPlantBoxTheme
-
+import kotlinx.coroutines.delay
 @Composable
 fun ForgotPasswordNewPasswordScreen(
     onBackClick: () -> Unit,
@@ -37,6 +38,8 @@ fun ForgotPasswordNewPasswordScreen(
 ) {
     val viewModel: ForgotPasswordViewModel = viewModel()
     val passwordState by viewModel.newPasswordState.collectAsState()
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     val createYourText = stringResource(R.string.create_your)
     val newPasswordTitleText = stringResource(R.string.new_password_title)
@@ -50,11 +53,42 @@ fun ForgotPasswordNewPasswordScreen(
     val minimum8CharsNoSpaces = stringResource(R.string.minimum_8_chars_no_spaces)
     val confirmYourPasswordHint = stringResource(R.string.confirm_your_password_hint)
 
+    val errorPasswordRequired = stringResource(R.string.error_password_required)
+    val errorPasswordMin8 = stringResource(R.string.error_password_min_8)
+    val errorPasswordMax25 = stringResource(R.string.error_password_max_25)
+    val errorPasswordForbidden = stringResource(R.string.error_password_forbidden)
+    val errorPasswordsDoNotMatch = stringResource(R.string.error_passwords_do_not_match)
+    val errorConfirmRequired = stringResource(R.string.error_confirm_password_required)
+
+    var tempSuccessMessage by remember { mutableStateOf<String?>(null) }
+    var tempErrorMessage by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(Unit) {
+        viewModel.resetNewPasswordState()
+    }
+
     var isNewPasswordVisible by remember { mutableStateOf(false) }
     var isConfirmPasswordVisible by remember { mutableStateOf(false) }
 
     fun filterPassword(input: String): String {
         return input.filter { !it.isWhitespace() }
+    }
+
+    LaunchedEffect(passwordState.successMessage) {
+        if (passwordState.successMessage != null) {
+            tempSuccessMessage = passwordState.successMessage
+            delay(2000)
+            tempSuccessMessage = null
+            onPasswordChanged()
+        }
+    }
+
+    LaunchedEffect(passwordState.errorMessage) {
+        if (passwordState.errorMessage != null) {
+            tempErrorMessage = passwordState.errorMessage
+            delay(2000)
+            tempErrorMessage = null
+        }
     }
 
     Column(
@@ -107,46 +141,35 @@ fun ForgotPasswordNewPasswordScreen(
             contentDescription = null,
             modifier = Modifier
                 .padding(vertical = 0.dp)
-                .size(400.dp)
+                .size(280.dp)
         )
 
-        if (passwordState.errorMessage != null) {
+        if (tempErrorMessage != null) {
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFFFFEBEE)
-                )
+                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFFFEBEE))
             ) {
-                Text(
-                    text = passwordState.errorMessage!!,
-                    color = Color(0xFFD32F2F),
-                    modifier = Modifier.padding(12.dp),
-                    fontSize = 14.sp
-                )
+                Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(painterResource(R.drawable.ic_error), null, tint = Color(0xFFD32F2F), modifier = Modifier.size(20.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(tempErrorMessage!!, color = Color(0xFFD32F2F), fontSize = 14.sp)
+                }
             }
         }
 
-        if (passwordState.successMessage != null) {
+        if (tempSuccessMessage != null) {
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFFE8F5E9)
-                )
+                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9))
             ) {
-                Text(
-                    text = passwordState.successMessage!!,
-                    color = Color(0xFF2E7D32),
-                    modifier = Modifier.padding(12.dp),
-                    fontSize = 14.sp
-                )
+                Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(painterResource(R.drawable.ic_check), null, tint = Color(0xFF2E7D32), modifier = Modifier.size(20.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(tempSuccessMessage!!, color = Color(0xFF2E7D32), fontSize = 14.sp)
+                }
             }
         }
 
-        // New Password field
         OutlinedTextField(
             value = passwordState.newPassword,
             onValueChange = {
@@ -182,10 +205,14 @@ fun ForgotPasswordNewPasswordScreen(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             singleLine = true,
             isError = passwordState.newPasswordError != null,
-            supportingText = passwordState.newPasswordError?.let {
-                { Text(it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp) }
-            } ?: {
-                Text(minimum8CharsNoSpaces, fontSize = 10.sp, color = Color.Black)
+            supportingText = {
+                when (passwordState.newPasswordError) {
+                    "Password is required" -> Text(errorPasswordRequired, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                    "Password must be at least 8 characters" -> Text(errorPasswordMin8, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                    "Password must not exceed 25 characters" -> Text(errorPasswordMax25, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                    "Password contains forbidden words" -> Text(errorPasswordForbidden, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                    else -> Text(minimum8CharsNoSpaces, fontSize = 10.sp, color = Color.Black)
+                }
             },
             enabled = !passwordState.isLoading,
             colors = OutlinedTextFieldDefaults.colors(
@@ -197,7 +224,6 @@ fun ForgotPasswordNewPasswordScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Confirm Password field
         OutlinedTextField(
             value = passwordState.confirmPassword,
             onValueChange = {
@@ -233,10 +259,12 @@ fun ForgotPasswordNewPasswordScreen(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             singleLine = true,
             isError = passwordState.confirmPasswordError != null,
-            supportingText = passwordState.confirmPasswordError?.let {
-                { Text(it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp) }
-            } ?: {
-                Text(confirmYourPasswordHint, fontSize = 10.sp, color = Color.Black)
+            supportingText = {
+                when (passwordState.confirmPasswordError) {
+                    "Passwords do not match" -> Text(errorPasswordsDoNotMatch, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                    "Please confirm your password" -> Text(errorConfirmRequired, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                    else -> Text(confirmYourPasswordHint, fontSize = 10.sp, color = Color.Black)
+                }
             },
             enabled = !passwordState.isLoading,
             colors = OutlinedTextFieldDefaults.colors(
@@ -264,7 +292,7 @@ fun ForgotPasswordNewPasswordScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         Button(
-            onClick = { viewModel.changePassword(onPasswordChanged) },
+            onClick = { viewModel.changePassword(context, onPasswordChanged) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),

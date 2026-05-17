@@ -16,14 +16,14 @@
     <!-- Welcome Screen -->
     <string name="welcome_to">Welcome to</string>
     <string name="app_name_short">SmartPlantBox</string>
-    <string name="welcome_description">Press "Get Started" and let your smart pot handle watering</string>
+    <string name="welcome_description">Press "Get Started" and let your smart box handle watering</string>
     <string name="get_started">Get Started</string>
 
     <!-- Login Screen -->
     <string name="welcome_plants">Welcome Plants</string>
     <string name="login_to_your_account">Login to your account</string>
     <string name="remember_me">Remember me</string>
-    <string name="forget_password">Forget Password?</string>
+    <string name="forget_password">Forgot Password?</string>
     <string name="dont_have_an_account">Don\'t have an account?</string>
     <string name="no_spaces_allowed">No spaces allowed</string>
     <string name="login_button">Login</string>
@@ -122,7 +122,7 @@
     <!-- Home screen -->
     <string name="home_title">Home</string>
     <string name="no_device">No Device Connected</string>
-    <string name="no_device_desc">Click the button below to connect your first smart pot</string>
+    <string name="no_device_desc">Click the button below to connect your first smart box</string>
     <string name="connect_device">Connect Device</string>
     <string name="add_more_device">Add more device</string>
     <string name="connect_first_device">Connect First Device</string>
@@ -134,9 +134,10 @@
     <string name="connect">Connect</string>
     <string name="edit_device_name">Edit Device Name</string>
     <string name="device_name">Device Name</string>
-    <string name="max_16_chars">Max 16 characters (letters, numbers and spaces only)</string>
+    <string name="max_16_chars">Max 27 characters (letters, numbers and spaces only)</string>
     <string name="name_cannot_be_empty">Name cannot be empty</string>
     <string name="delete_device_title">Delete Device</string>
+    <string name="no_keys_found">No keys found for this email</string>
     <string name="delete_device_confirm">Are you sure you want to delete \"%s\"? This action cannot be undone.</string>
     <string name="connect_your_first_device">Connect Your First Device</string>
     <string name="add_new_device">Add New Device</string>
@@ -149,7 +150,7 @@
     <string name="card_background">Card Background</string>
     <string name="device_icon">Device Icon</string>
     <string name="delete_device">Delete Device</string>
-    <string name="settings_current_potty">Settings Current Potty</string>
+    <string name="settings_current_potty">Current Box Settings</string>
     <string name="no_device_icon">No Device</string>
     <string name="failed_to_bind_device">Failed to bind device</string>
     <string name="failed_to_unbind_device">Failed to unbind device</string>
@@ -263,11 +264,11 @@
     <string name="failed_to_update_name">Failed to update name</string>
     <string name="password_changed_successfully">Password changed successfully! Please login again.</string>
     <string name="minimum_25_characters">Maximum 25 characters</string>
-    <string name="maximum_16_characters">Maximum 16 characters</string>
+    <string name="maximum_16_characters">Maximum 25 characters</string>
 
     <!-- Image Screen -->
     <string name="plant_gallery">Plant Gallery</string>
-    <string name="photos_from_smart_pot">Photos from your Smart Pot</string>
+    <string name="photos_from_smart_pot">Photos from your Smart Box</string>
     <string name="device">Device</string>
     <string name="refresh">Refresh</string>
     <string name="auto_capture_interval">Auto Capture Interval</string>
@@ -290,11 +291,12 @@
     <string name="failed_to_set_interval">Failed to set interval</string>
     <string name="failed_to_capture_photo">Failed to capture photo</string>
     <string name="network_error">Network error</string>
+    <string name="retry">Retry</string>
     <string name="interval_set_to">Interval set to every %d hour(s)</string>
 
     <!-- Photo Guide Dialog -->
     <string name="photo_guide_title">Photo Gallery Guide</string>
-    <string name="photo_guide_content">This section helps you manage photos of your plants captured by the Smart Pot.</string>
+    <string name="photo_guide_content">This section helps you manage photos of your plants captured by the Smart Box.</string>
     <string name="photo_guide_take_photo">📸 Take a Photo Now\nTap the large green card below to instantly capture the current state of your plant. After taking a photo, scroll down to see it appear in the gallery.</string>
     <string name="photo_guide_gallery">🖼️ Photo Gallery\nAll captured photos are displayed below, sorted by date. You can tap any photo to view it full screen.</string>
     <string name="photo_guide_auto_interval">⏱️ Auto Capture Interval\nYou can set the device to automatically take photos at regular intervals:</string>
@@ -357,6 +359,9 @@
     <string name="watering_off">Watering: Off</string>
     <string name="celsius">°C</string>
     <string name="percent">%</string>
+    <string name="no_data_found">No data found</string>
+    <string name="analise_statistic">Analyse the data from your Smart Plant Box</string>
+
 
     <!-- Period Info Dialog -->
     <string name="period_info_title">Filtering Statistics by Date</string>
@@ -368,4 +373,48 @@
     <string name="period_info_custom">• Custom — allows you to select a specific date range</string>
     <string name="period_info_how_to">📌 How to use Custom range:\n\n1. Tap Custom (Inny) — a calendar will open\n2. Select the start date → tap Next\n3. Select the end date → tap Apply\n\nThe chart will then display data from the start date to the day before the end date (e.g., 03.05.2026 – 10.05.2026 shows data from 03.05 to 09.05).</string>
     <string name="period_info_note">Only data recorded during the selected period will be shown in the chart and statistics.</string>
+
+    <!-- Validation Errors -->
+    <string name="error_full_name_required">Full name is required</string>
+    <string name="error_full_name_max_25">Full name must not exceed 25 characters</string>
+    <string name="error_full_name_invalid">Full name can only contain letters and spaces</string>
+    <string name="error_full_name_forbidden">Name contains forbidden words</string>
+    <string name="error_full_name_invalid_chars">Name contains invalid characters</string>
+
+    <string name="error_email_required">Email is required</string>
+    <string name="error_email_invalid_domain">Email must be @gmail.com</string>
+    <string name="error_email_empty_local">Email local part cannot be empty</string>
+    <string name="error_email_local_max_25">Email local part must not exceed 25 characters</string>
+    <string name="error_email_invalid_format">Email can only contain letters, numbers, and . _ -</string>
+    <string name="error_email_forbidden">Email contains forbidden words</string>
+
+    <string name="error_password_required">Password is required</string>
+    <string name="error_password_min_8">Password must be at least 8 characters</string>
+    <string name="error_password_max_25">Password must not exceed 25 characters</string>
+    <string name="error_password_forbidden">Password contains forbidden words</string>
+    <string name="error_password_no_spaces">No spaces allowed</string>
+    <string name="error_password_min_8_no_spaces">Minimum 8 characters, no spaces allowed</string>
+
+    <string name="error_confirm_password_required">Please confirm your password</string>
+    <string name="error_passwords_do_not_match">Passwords do not match</string>
+
+    <!-- Auth Errors -->
+    <string name="error_incorrect_password">Incorrect password</string>
+    <string name="error_user_not_found">User not found</string>
+    <string name="error_network">Network error</string>
+    <string name="error_email_exists">Email already exists</string>
+    <string name="error_fields_required">All fields must be filled in</string>
+    <string name="error_registration_failed">Registration failed</string>
+    <string name="error_login_failed">Login failed</string>
+    <string name="registration_success">Registration successful! Please login.</string>
+
+    <!-- Forgot Password Strings -->
+    <string name="forgot_code_sent">Code sent to %s</string>
+    <string name="forgot_code_verified">✓ Code verified!</string>
+    <string name="forgot_code_resent">✓ New code sent to your email</string>
+    <string name="forgot_invalid_code">Invalid code. Please try again.</string>
+    <string name="forgot_resend_failed">Failed to resend code</string>
+    <string name="forgot_password_changed">✓ Password changed successfully! You can now login.</string>
+    <string name="forgot_server_error">Server error. Please try again later.</string>
+    <string name="forgot_request_failed">Request failed. Please try again.</string>
 </resources>

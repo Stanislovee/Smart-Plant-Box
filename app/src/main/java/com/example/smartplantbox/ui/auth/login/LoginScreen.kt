@@ -67,7 +67,6 @@ fun LoginScreen(
     LaunchedEffect(authResult) {
         when (val result = authResult) {
             is AuthResult.Error -> {
-                println("Auth Error: ${result.message}")
                 authViewModel.clearAuthResult()
             }
             else -> {}
@@ -92,7 +91,7 @@ fun LoginScreen(
                 .align(Alignment.TopStart)
                 .graphicsLayer {
                     translationX = 0f
-                    translationY = -50f
+                    translationY = -140f
                 },
             contentScale = ContentScale.Crop
         )
@@ -109,7 +108,7 @@ fun LoginScreen(
                 text = welcomePlantsText,
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF1B5E20),
+                color = Color(0xFF326032),
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
@@ -129,16 +128,18 @@ fun LoginScreen(
                         containerColor = Color(0xFFFFEBEE)
                     )
                 ) {
-                    Text(
-                        text = loginState.errorMessage!!,
-                        color = Color(0xFFD32F2F),
-                        modifier = Modifier.padding(12.dp),
-                        fontSize = 14.sp
-                    )
+                    Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(painterResource(R.drawable.ic_error), null, tint = Color(0xFFD32F2F), modifier = Modifier.size(20.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = loginState.errorMessage!!,
+                            color = Color(0xFFD32F2F),
+                            fontSize = 14.sp
+                        )
+                    }
                 }
             }
 
-            // Email field
             OutlinedTextField(
                 value = loginState.email,
                 onValueChange = { authViewModel.updateLoginEmail(it) },
@@ -155,7 +156,7 @@ fun LoginScreen(
                 singleLine = true,
                 isError = loginState.emailError != null,
                 supportingText = loginState.emailError?.let {
-                    { Text(it, color = MaterialTheme.colorScheme.error) }
+                    { Text(stringResource(R.string.error_email_invalid_domain), color = MaterialTheme.colorScheme.error, fontSize = 12.sp) }
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 enabled = !loginState.isLoading,
@@ -170,7 +171,6 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Password field
             OutlinedTextField(
                 value = loginState.password,
                 onValueChange = {
@@ -207,7 +207,7 @@ fun LoginScreen(
                 singleLine = true,
                 isError = loginState.passwordError != null,
                 supportingText = loginState.passwordError?.let {
-                    { Text(it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp) }
+                    { Text(stringResource(R.string.error_password_min_8_no_spaces), color = MaterialTheme.colorScheme.error, fontSize = 12.sp) }
                 } ?: {
                     Text(noSpacesAllowedText, fontSize = 10.sp, color = Color.Black)
                 },

@@ -134,7 +134,7 @@
     <string name="connect">Połącz</string>
     <string name="edit_device_name">Edytuj nazwę urządzenia</string>
     <string name="device_name">Nazwa urządzenia</string>
-    <string name="max_16_chars">Maks. 27 znaków (tylko litery, cyfry i spacje)</string>
+    <string name="max_16_chars">Maks. 16 znaków (tylko litery, cyfry i spacje)</string>
     <string name="name_cannot_be_empty">Nazwa nie może być pusta</string>
     <string name="delete_device_title">Usuń urządzenie</string>
     <string name="no_keys_found">Brak kluczy dla tego emaila</string>

@@ -18,7 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -374,7 +374,7 @@ fun StatsScreen() {
         filteredData = filterByPeriod(historyData, selectedFilter)
         resetViewport(filteredData.size)
     }
-    // UI
+
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
             painter = painterResource(R.drawable.top_overlay), "Background",
@@ -507,13 +507,13 @@ fun StatsScreen() {
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(periodText, fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(bottom = 8.dp))
-                                    Image(
-                                        imageVector = Icons.Default.Info,
+                                    Icon(
+                                        imageVector = Icons.Outlined.Info,
                                         contentDescription = "Info",
                                         modifier = Modifier
-                                            .size(20.dp)
+                                            .size(32.dp)
                                             .clickable { showPeriodInfoDialog = true },
-                                        contentScale = ContentScale.Fit
+                                        tint = Color(0xFF1B5E20)
                                     )
                                 }
 
@@ -841,10 +841,10 @@ fun StatsScreen() {
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        imageVector = Icons.Default.Info,
+                        imageVector = Icons.Outlined.Info,
                         contentDescription = null,
-                        modifier = Modifier.size(24.dp),
-                        tint = Color(0xFF4CAF50)
+                        modifier = Modifier.size(32.dp),
+                        tint = Color(0xFF1B5E20)
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(

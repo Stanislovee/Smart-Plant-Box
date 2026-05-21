@@ -14,7 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -428,13 +428,13 @@ fun ImageScreen() {
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Text(autoCaptureIntervalText, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1B5E20))
                             }
-                            Image(
-                                imageVector = Icons.Default.Info,
+                            Icon(
+                                imageVector = Icons.Outlined.Info,
                                 contentDescription = "Info",
                                 modifier = Modifier
-                                    .size(24.dp)
+                                    .size(32.dp)
                                     .clickable { showPhotoGuideDialog = true },
-                                contentScale = ContentScale.Fit
+                                tint = Color(0xFF1B5E20)
                             )
                         }
 
@@ -562,7 +562,8 @@ fun ImageScreen() {
                             }
                         }
                     }
-                    photoTimes.isNotEmpty() -> {
+
+                    else -> {
                         LazyVerticalGrid(
                             columns = GridCells.Fixed(2),
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -570,37 +571,10 @@ fun ImageScreen() {
                             modifier = Modifier.heightIn(max = 500.dp)
                         ) {
                             items(photoTimes) { time ->
-                                PhotoCard(time = time, formattedTime = formatDateTime(time), onClick = { openPhoto(time) })
-                            }
-                        }
-                    }
-                    else -> {
-                        ImageCard {
-                            Column(
-                                modifier = Modifier.fillMaxWidth().padding(32.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.ic_error),
-                                    noDataAvailableText,
-                                    tint = Color(0xFFD32F2F),
-                                    modifier = Modifier.size(64.dp)
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
-                                Text(
-                                    errorMessage ?: failedToLoadDataText,
-                                    fontSize = 14.sp,
-                                    color = Color(0xFFD32F2F),
-                                    textAlign = TextAlign.Center
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
-                                Button(
-                                    onClick = { scope.launch { loadPhotoData() } },
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
-                                    shape = RoundedCornerShape(12.dp)
-                                ) {
-                                    Text(retryText, color = Color.White)
-                                }
+                                PhotoCard(
+                                    time = time,
+                                    formattedTime = formatDateTime(time),
+                                    onClick = { openPhoto(time) })
                             }
                         }
                     }

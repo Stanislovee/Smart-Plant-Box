@@ -590,7 +590,7 @@ fun PlantCard(plant: PlantItem, onGuideClick: () -> Unit) {
                     .height(48.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.Add,
+                    painter = painterResource(id = R.drawable.ic_search),
                     contentDescription = guideText,
                     tint = Color.White,
                     modifier = Modifier.size(24.dp)

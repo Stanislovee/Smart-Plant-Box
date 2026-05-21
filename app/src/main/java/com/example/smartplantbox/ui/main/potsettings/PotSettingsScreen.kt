@@ -1,6 +1,7 @@
 package com.example.smartplantbox.ui.main.potsettings
 
 import android.content.Context
+import android.graphics.Color.green
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -286,7 +288,12 @@ fun PotSettingsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Image(Icons.Outlined.Info, deviceInfoText, modifier = Modifier.size(32.dp), contentScale = ContentScale.Fit)
+                                Icon(
+                                    imageVector = Icons.Outlined.Person,
+                                    contentDescription = deviceInfoText,
+                                    modifier = Modifier.size(32.dp),
+                                    tint = Color(0xFF1B5E20)
+                                )
                                 Spacer(modifier = Modifier.width(16.dp))
                                 Column {
                                     Text(deviceName, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1B5E20))
@@ -388,13 +395,13 @@ fun PotSettingsScreen(
                                     Spacer(modifier = Modifier.width(12.dp))
                                     Text(setLightThresholdText, fontSize = 18.sp, fontWeight = FontWeight.Medium, color = Color(0xFF1B5E20))
                                 }
-                                Image(
-                                    imageVector = Icons.Default.Info,
+                                Icon(
+                                    imageVector = Icons.Outlined.Info,
                                     contentDescription = "Info",
                                     modifier = Modifier
-                                        .size(24.dp)
+                                        .size(32.dp)
                                         .clickable { showLightInfoDialog = true },
-                                    contentScale = ContentScale.Fit
+                                    tint = Color(0xFF1B5E20)
                                 )
                             }
                             Spacer(modifier = Modifier.height(16.dp))
@@ -452,13 +459,13 @@ fun PotSettingsScreen(
                                     Spacer(modifier = Modifier.width(12.dp))
                                     Text(setSoilMoistureText, fontSize = 18.sp, fontWeight = FontWeight.Medium, color = Color(0xFF1B5E20))
                                 }
-                                Image(
-                                    imageVector = Icons.Default.Info,
+                                Icon(
+                                    imageVector = Icons.Outlined.Info,
                                     contentDescription = "Info",
                                     modifier = Modifier
-                                        .size(24.dp)
+                                        .size(32.dp)
                                         .clickable { showSoilInfoDialog = true },
-                                    contentScale = ContentScale.Fit
+                                    tint = Color(0xFF1B5E20)
                                 )
                             }
                             Spacer(modifier = Modifier.height(16.dp))

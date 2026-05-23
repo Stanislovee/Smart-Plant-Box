@@ -285,6 +285,8 @@
     <string name="interval_updated">Interval updated successfully</string>
     <string name="photo_captured">📸 Photo captured!</string>
     <string name="failed_to_load_image">Failed to load image</string>
+    <string name="no_photos_for_key">No photos for this key</string>
+    <string name="loading_photos">Loading photos...</string>
     <string name="user_not_logged_in">User not logged in</string>
     <string name="failed_to_load_data">Failed to load data</string>
     <string name="failed_to_load_devices">Failed to load devices</string>

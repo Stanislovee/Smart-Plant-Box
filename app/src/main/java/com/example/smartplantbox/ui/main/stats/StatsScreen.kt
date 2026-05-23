@@ -40,12 +40,18 @@ import com.example.smartplantbox.R
 import com.example.smartplantbox.data.repository.AuthRepositoryImpl
 import com.example.smartplantbox.domain.model.PlantHistoryData
 import com.example.smartplantbox.ui.theme.SmartPlantBoxTheme
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
 data class MetricOption(val name: String, val unit: String, val color: Color, val icon: String)
+
+data class DeviceDisplayInfo(val name: String, val sn: String) {
+    fun getDisplayText(): String = "$name ($sn)"
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -133,8 +139,9 @@ fun StatsScreen() {
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var historyData by remember { mutableStateOf<List<PlantHistoryData>>(emptyList()) }
     var filteredData by remember { mutableStateOf<List<PlantHistoryData>>(emptyList()) }
-    var selectedDeviceKey by remember { mutableStateOf("") }
-    var availableDevices by remember { mutableStateOf<List<String>>(emptyList()) }
+    var selectedDeviceSn by remember { mutableStateOf("") }
+    var availableDevices by remember { mutableStateOf<List<DeviceDisplayInfo>>(emptyList()) }
+    var deviceDropdownExpanded by remember { mutableStateOf(false) }
 
     var selectedFilter by remember { mutableStateOf(dayText) }
     val filterOptions = listOf(dayText, weekText, monthText, allText, customText)
@@ -147,7 +154,6 @@ fun StatsScreen() {
         MetricOption(lightText, percentText, Color(0xFFFFC107), "💡")
     )
 
-    var deviceDropdownExpanded by remember { mutableStateOf(false) }
     var metricDropdownExpanded by remember { mutableStateOf(false) }
 
     var showDatePicker by remember { mutableStateOf(false) }
@@ -167,6 +173,16 @@ fun StatsScreen() {
     val itemsPerPage = 15
     var visibleStartIndex by remember { mutableIntStateOf(0) }
     var visibleEndIndex by remember { mutableIntStateOf(itemsPerPage) }
+
+    fun loadDeviceNamesMap(context: Context): Map<String, String> {
+        val prefs = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        val json = prefs.getString("device_names", "{}")
+        return try {
+            Gson().fromJson(json, object : TypeToken<Map<String, String>>() {}.type)
+        } catch (e: Exception) {
+            emptyMap()
+        }
+    }
 
     fun parseDate(s: String): Date? = try {
         SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse(s)
@@ -250,7 +266,8 @@ fun StatsScreen() {
             visibleEndIndex = minOf(total, visibleStartIndex + count)
         }
     }
-    suspend fun loadAvailableDevices(): List<String> {
+
+    suspend fun loadAvailableDevices(): List<DeviceDisplayInfo> {
         return try {
             val prefs = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
             val email = prefs.getString("user_email", null)
@@ -261,7 +278,11 @@ fun StatsScreen() {
             }
             val resp = repository.getBoundDevices(email, token)
             if (resp.success && !resp.keys.isNullOrEmpty()) {
-                resp.keys
+                val savedNames = loadDeviceNamesMap(context)
+                resp.keys.map { key ->
+                    val name = savedNames[key] ?: "Device"
+                    DeviceDisplayInfo(name = name, sn = key)
+                }
             } else {
                 errorMessage = resp.message ?: failedToLoadDevicesText
                 emptyList()
@@ -320,10 +341,10 @@ fun StatsScreen() {
             availableDevices = devices
 
             if (devices.isNotEmpty()) {
-                if (selectedDeviceKey.isEmpty() || !devices.contains(selectedDeviceKey)) {
-                    selectedDeviceKey = devices.first()
+                if (selectedDeviceSn.isEmpty() || !devices.any { it.sn == selectedDeviceSn }) {
+                    selectedDeviceSn = devices.first().sn
                 }
-                loadHistory(selectedDeviceKey)
+                loadHistory(selectedDeviceSn)
             } else {
                 historyData = emptyList()
                 filteredData = emptyList()
@@ -338,7 +359,7 @@ fun StatsScreen() {
     }
 
     fun triggerUpdate() = scope.launch {
-        if (selectedDeviceKey.isEmpty()) return@launch
+        if (selectedDeviceSn.isEmpty()) return@launch
         isUpdating = true
         errorMessage = null
         val token = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
@@ -349,11 +370,11 @@ fun StatsScreen() {
             return@launch
         }
         try {
-            val resp = repository.sendCommand(selectedDeviceKey, "update", token)
+            val resp = repository.sendCommand(selectedDeviceSn, "update", token)
             if (resp.success) {
                 android.widget.Toast.makeText(context, dataUpdatedText, android.widget.Toast.LENGTH_SHORT).show()
                 delay(500)
-                loadHistory(selectedDeviceKey)
+                loadHistory(selectedDeviceSn)
             } else {
                 errorMessage = resp.message ?: failedToUpdateText
                 android.widget.Toast.makeText(context, "$failedToUpdateText: ${resp.message}", android.widget.Toast.LENGTH_SHORT).show()
@@ -424,7 +445,7 @@ fun StatsScreen() {
                                 Text(deviceLabelText, fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(bottom = 8.dp))
                                 Button(
                                     onClick = { triggerUpdate() },
-                                    enabled = !isUpdating && selectedDeviceKey.isNotEmpty(),
+                                    enabled = !isUpdating && selectedDeviceSn.isNotEmpty(),
                                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
                                     shape = RoundedCornerShape(12.dp),
                                     modifier = Modifier.width(70.dp).height(36.dp)
@@ -441,8 +462,9 @@ fun StatsScreen() {
                                 expanded = deviceDropdownExpanded,
                                 onExpandedChange = { deviceDropdownExpanded = it }
                             ) {
+                                val selectedDevice = availableDevices.find { it.sn == selectedDeviceSn }
                                 OutlinedTextField(
-                                    value = selectedDeviceKey,
+                                    value = selectedDevice?.getDisplayText() ?: selectedDeviceSn,
                                     onValueChange = {},
                                     readOnly = true,
                                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(deviceDropdownExpanded) },
@@ -461,19 +483,19 @@ fun StatsScreen() {
                                     onDismissRequest = { deviceDropdownExpanded = false },
                                     containerColor = Color.White
                                 ) {
-                                    availableDevices.forEach { key ->
+                                    availableDevices.forEach { device ->
                                         DropdownMenuItem(
                                             text = {
                                                 Text(
-                                                    text = key,
+                                                    text = device.getDisplayText(),
                                                     fontSize = 14.sp,
                                                     color = Color.Black
                                                 )
                                             },
                                             onClick = {
-                                                selectedDeviceKey = key
+                                                selectedDeviceSn = device.sn
                                                 deviceDropdownExpanded = false
-                                                scope.launch { loadHistory(key) }
+                                                scope.launch { loadHistory(device.sn) }
                                             }
                                         )
                                     }
@@ -486,10 +508,10 @@ fun StatsScreen() {
                             Column(modifier = Modifier.fillMaxWidth().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(noDataFoundText, fontSize = 14.sp, color = Color(0xFFD32F2F), textAlign = TextAlign.Center)
                                 Spacer(modifier = Modifier.height(8.dp))
-                                Text("$deviceLabelText: $selectedDeviceKey", fontSize = 12.sp, color = Color.Gray)
+                                Text("$deviceLabelText: ${availableDevices.find { it.sn == selectedDeviceSn }?.getDisplayText() ?: selectedDeviceSn}", fontSize = 12.sp, color = Color.Gray)
                                 Spacer(modifier = Modifier.height(16.dp))
                                 Button(
-                                    onClick = { scope.launch { loadHistory(selectedDeviceKey) } },
+                                    onClick = { scope.launch { loadHistory(selectedDeviceSn) } },
                                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
                                     shape = RoundedCornerShape(12.dp)
                                 ) {

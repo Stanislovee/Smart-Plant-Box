@@ -285,6 +285,8 @@
     <string name="failed_to_load_image">Nie udało się załadować obrazu</string>
     <string name="user_not_logged_in">Użytkownik niezalogowany</string>
     <string name="failed_to_load_data">Nie udało się załadować danych</string>
+    <string name="no_photos_for_key">Brak zdjęć dla tego klucza</string>
+    <string name="loading_photos">Ładowanie zdjęć...</string>
     <string name="failed_to_load_devices">Nie udało się załadować urządzeń</string>
     <string name="failed_to_set_interval">Nie udało się ustawić interwału</string>
     <string name="failed_to_capture_photo">Nie udało się wykonać zdjęcia</string>

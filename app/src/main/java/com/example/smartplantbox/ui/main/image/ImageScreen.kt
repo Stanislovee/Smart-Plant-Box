@@ -37,10 +37,18 @@ import coil.request.ImageRequest
 import com.example.smartplantbox.R
 import com.example.smartplantbox.data.repository.AuthRepositoryImpl
 import com.example.smartplantbox.ui.theme.SmartPlantBoxTheme
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+
+data class DeviceDisplayInfo(val name: String, val sn: String) {
+    fun getDisplayText(): String = "$name ($sn)"
+}
+
+data class PhotoItem(val time: String, val url: String)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,6 +85,8 @@ fun ImageScreen() {
     val noDataAvailableText = stringResource(R.string.no_data_available)
     val retryText = stringResource(R.string.retry)
     val noDataFoundText = stringResource(R.string.no_data_found)
+    val noPhotosForKeyText = stringResource(R.string.no_photos_for_key)
+    val loadingPhotosText = stringResource(R.string.loading_photos)
 
     val photoGuideTitle = stringResource(R.string.photo_guide_title)
     val photoGuideContent = stringResource(R.string.photo_guide_content)
@@ -93,8 +103,8 @@ fun ImageScreen() {
     var successMessage by remember { mutableStateOf<String?>(null) }
     var isUpdating by remember { mutableStateOf(false) }
 
-    var selectedDeviceKey by remember { mutableStateOf("") }
-    var availableDevices by remember { mutableStateOf<List<String>>(emptyList()) }
+    var selectedDeviceSn by remember { mutableStateOf("") }
+    var availableDevices by remember { mutableStateOf<List<DeviceDisplayInfo>>(emptyList()) }
     var deviceDropdownExpanded by remember { mutableStateOf(false) }
 
     var currentInterval by remember { mutableIntStateOf(0) }
@@ -104,6 +114,7 @@ fun ImageScreen() {
     val intervalOptions = listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 24)
 
     var photoTimes by remember { mutableStateOf<List<String>>(emptyList()) }
+    var photoItems by remember { mutableStateOf<List<PhotoItem>>(emptyList()) }
     var isLoadingPhotos by remember { mutableStateOf(false) }
     var isTakingPhoto by remember { mutableStateOf(false) }
 
@@ -113,43 +124,87 @@ fun ImageScreen() {
 
     var showPhotoGuideDialog by remember { mutableStateOf(false) }
 
+    fun loadDeviceNamesMap(context: Context): Map<String, String> {
+        val prefs = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        val json = prefs.getString("device_names", "{}")
+        return try {
+            Gson().fromJson(json, object : TypeToken<Map<String, String>>() {}.type)
+        } catch (e: Exception) {
+            emptyMap()
+        }
+    }
+
     fun formatDateTime(dateString: String): String = try {
         SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault()).format(
             SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse(dateString) ?: Date()
         )
     } catch (_: Exception) { dateString }
 
+    suspend fun loadPhotoUrl(time: String): String? {
+        return try {
+            val token = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+                .getString("jwt_token", null) ?: return null
+            val resp = repository.getPhotoUrl(selectedDeviceSn, time, token)
+            if (resp.success && resp.url.isNotEmpty()) resp.url else null
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    suspend fun loadAllPhotoUrls() {
+        if (photoTimes.isEmpty()) return
+
+        isLoadingPhotos = true
+        val newPhotoItems = mutableListOf<PhotoItem>()
+
+        for (time in photoTimes) {
+            val url = loadPhotoUrl(time)
+            if (url != null) {
+                newPhotoItems.add(PhotoItem(time = time, url = url))
+            }
+        }
+
+        photoItems = newPhotoItems
+        isLoadingPhotos = false
+    }
+
     suspend fun loadPhotoData() {
-        if (selectedDeviceKey.isEmpty()) {
+        if (selectedDeviceSn.isEmpty()) {
             isLoading = false
             photoTimes = emptyList()
+            photoItems = emptyList()
             return
         }
         isLoading = true
         errorMessage = null
         photoTimes = emptyList()
+        photoItems = emptyList()
         try {
             val token = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
                 .getString("jwt_token", null) ?: run { errorMessage = userNotLoggedInText; isLoading = false; return }
 
-            val intervalResp = repository.getPhotoInterval(selectedDeviceKey, token)
+            val intervalResp = repository.getPhotoInterval(selectedDeviceSn, token)
             if (intervalResp.success && intervalResp.data != null) {
                 currentInterval  = intervalResp.data.interval_photo
                 selectedInterval = currentInterval
             }
-            val timesResp = repository.getPhotoTimes(selectedDeviceKey, token)
+            val timesResp = repository.getPhotoTimes(selectedDeviceSn, token)
             if (timesResp.success) {
                 photoTimes = timesResp.times
-                if (photoTimes.isEmpty()) {
-                    errorMessage = null
+                if (photoTimes.isNotEmpty()) {
+                    loadAllPhotoUrls()
+                } else {
+                    errorMessage = noPhotosForKeyText
                 }
             } else {
                 errorMessage = timesResp.message ?: failedToLoadDataText
                 photoTimes = emptyList()
+                photoItems = emptyList()
             }
         } catch (e: Exception) {
             errorMessage = "$failedToLoadDataText: ${e.message}"
             photoTimes = emptyList()
+            photoItems = emptyList()
         } finally {
             isLoading = false
         }
@@ -159,6 +214,7 @@ fun ImageScreen() {
         isLoadingDevices = true
         errorMessage = null
         photoTimes = emptyList()
+        photoItems = emptyList()
         try {
             val prefs = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
             val email = prefs.getString("user_email", null)
@@ -166,8 +222,13 @@ fun ImageScreen() {
             if (email != null && token != null) {
                 val resp = repository.getBoundDevices(email, token)
                 if (resp.success && !resp.keys.isNullOrEmpty()) {
-                    availableDevices = resp.keys
-                    if (selectedDeviceKey.isEmpty()) selectedDeviceKey = resp.keys.first()
+                    val savedNames = loadDeviceNamesMap(context)
+                    val devices = resp.keys.map { key ->
+                        val name = savedNames[key] ?: "Device"
+                        DeviceDisplayInfo(name = name, sn = key)
+                    }
+                    availableDevices = devices
+                    if (selectedDeviceSn.isEmpty()) selectedDeviceSn = devices.first().sn
                     loadPhotoData()
                 } else {
                     errorMessage = noDataFoundText
@@ -185,16 +246,23 @@ fun ImageScreen() {
         }
     }
 
-    suspend fun loadPhotoTimes() {
-        if (selectedDeviceKey.isEmpty()) return
+    suspend fun refreshPhotoTimes() {
+        if (selectedDeviceSn.isEmpty()) return
         isLoadingPhotos = true
         try {
             val token = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
                 .getString("jwt_token", null)
             if (token != null) {
-                val resp = repository.getPhotoTimes(selectedDeviceKey, token)
+                val resp = repository.getPhotoTimes(selectedDeviceSn, token)
                 if (resp.success) {
                     photoTimes = resp.times
+                    if (photoTimes.isNotEmpty()) {
+                        errorMessage = null
+                        loadAllPhotoUrls()
+                    } else {
+                        photoItems = emptyList()
+                        errorMessage = noPhotosForKeyText
+                    }
                 }
             }
         } catch (_: Exception) {
@@ -209,7 +277,7 @@ fun ImageScreen() {
             try {
                 val token = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
                     .getString("jwt_token", null) ?: run { errorMessage = userNotLoggedInText; return@launch }
-                val resp = repository.setPhotoInterval(selectedDeviceKey, selectedInterval, token)
+                val resp = repository.setPhotoInterval(selectedDeviceSn, selectedInterval, token)
                 if (resp.success) {
                     currentInterval = selectedInterval
                     successMessage  = "$intervalSetToText $selectedInterval $hoursText"
@@ -231,12 +299,12 @@ fun ImageScreen() {
             try {
                 val token = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
                     .getString("jwt_token", null) ?: run { errorMessage = userNotLoggedInText; return@launch }
-                val resp = repository.takePhotoNow(selectedDeviceKey, token)
+                val resp = repository.takePhotoNow(selectedDeviceSn, token)
                 if (resp.success) {
                     successMessage = photoCapturedText
                     android.widget.Toast.makeText(context, photoCapturedText, android.widget.Toast.LENGTH_SHORT).show()
                     delay(1000)
-                    loadPhotoTimes()
+                    refreshPhotoTimes()
                 } else {
                     errorMessage = resp.message ?: failedToCapturePhotoText
                 }
@@ -246,34 +314,21 @@ fun ImageScreen() {
         }
     }
 
-    fun openPhoto(time: String) {
-        scope.launch {
-            try {
-                val token = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
-                    .getString("jwt_token", null) ?: return@launch
-                val resp = repository.getPhotoUrl(selectedDeviceKey, time, token)
-                if (resp.success && resp.url.isNotEmpty()) {
-                    selectedPhotoUrl = resp.url
-                    selectedPhotoTime = time
-                    showPhotoDialog = true
-                } else {
-                    android.widget.Toast.makeText(context, failedToLoadImageText, android.widget.Toast.LENGTH_SHORT).show()
-                }
-            } catch (e: Exception) {
-                android.widget.Toast.makeText(context, "$networkErrorText: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
-            }
-        }
+    fun openPhoto(url: String, time: String) {
+        selectedPhotoUrl = url
+        selectedPhotoTime = time
+        showPhotoDialog = true
     }
 
     LaunchedEffect(Unit) { loadDevicesAndPhotos() }
 
-    LaunchedEffect(selectedDeviceKey) {
-        if (selectedDeviceKey.isNotEmpty()) {
+    LaunchedEffect(selectedDeviceSn) {
+        if (selectedDeviceSn.isNotEmpty()) {
             loadPhotoData()
         }
     }
 
-    // UI______________________
+    // UI_________
     Box(modifier = Modifier.fillMaxSize()) {
         Image(painterResource(R.drawable.top_overlay), null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
         Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.4f)))
@@ -307,6 +362,20 @@ fun ImageScreen() {
                 }
             }
 
+            if (errorMessage != null && errorMessage != noPhotosForKeyText) {
+                Card(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFFFEBEE))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(errorMessage!!, color = Color(0xFFD32F2F), fontSize = 14.sp)
+                    }
+                }
+            }
+
             if (isLoadingDevices) {
                 Card(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
@@ -318,7 +387,7 @@ fun ImageScreen() {
                     }
                 }
             }
-            else if (availableDevices.isEmpty() && errorMessage != null && !isLoadingDevices) {
+            else if (availableDevices.isEmpty() && errorMessage != null && !isLoadingDevices && errorMessage != noPhotosForKeyText) {
                 Card(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                     shape = RoundedCornerShape(16.dp),
@@ -353,6 +422,40 @@ fun ImageScreen() {
                     }
                 }
             }
+            else if (errorMessage == noPhotosForKeyText && availableDevices.isNotEmpty()) {
+                Card(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.95f))
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_photo_library),
+                            noPhotosForKeyText,
+                            tint = Color(0xFF4CAF50),
+                            modifier = Modifier.size(64.dp)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            noPhotosForKeyText,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color(0xFF1B5E20),
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            takeFirstPhotoText,
+                            fontSize = 12.sp,
+                            color = Color.Gray,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            }
             else if (availableDevices.isNotEmpty()) {
                 ImageCard {
                     Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
@@ -376,8 +479,11 @@ fun ImageScreen() {
                             expanded = deviceDropdownExpanded,
                             onExpandedChange = { deviceDropdownExpanded = it }
                         ) {
+                            val selectedDevice = availableDevices.find { it.sn == selectedDeviceSn }
                             OutlinedTextField(
-                                value = selectedDeviceKey, onValueChange = {}, readOnly = true,
+                                value = selectedDevice?.getDisplayText() ?: selectedDeviceSn,
+                                onValueChange = {},
+                                readOnly = true,
                                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = deviceDropdownExpanded) },
                                 modifier = Modifier.fillMaxWidth().menuAnchor(),
                                 shape = RoundedCornerShape(12.dp),
@@ -398,13 +504,13 @@ fun ImageScreen() {
                                     DropdownMenuItem(
                                         text = {
                                             Text(
-                                                text = device,
+                                                text = device.getDisplayText(),
                                                 fontSize = 14.sp,
                                                 color = Color.Black
                                             )
                                         },
                                         onClick = {
-                                            selectedDeviceKey = device
+                                            selectedDeviceSn = device.sn
                                             deviceDropdownExpanded = false
                                         }
                                     )
@@ -525,7 +631,7 @@ fun ImageScreen() {
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                val photoCount = photoTimes.size
+                val photoCount = photoItems.size
                 val countLabel = if (photoCount == 1) "$photoCount $photoText" else "$photoCount $photosText"
                 Text("📸 $galleryText ($countLabel)", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White, modifier = Modifier.padding(vertical = 8.dp))
 
@@ -533,7 +639,14 @@ fun ImageScreen() {
                     isLoading -> Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator(color = Color.White)
                     }
-                    photoTimes.isEmpty() && !isLoading -> {
+                    isLoadingPhotos -> Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            CircularProgressIndicator(color = Color(0xFF4CAF50))
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(loadingPhotosText, fontSize = 12.sp, color = Color.White)
+                        }
+                    }
+                    photoItems.isEmpty() && !isLoading && !isLoadingPhotos -> {
                         ImageCard {
                             Column(
                                 modifier = Modifier.fillMaxWidth().padding(32.dp),
@@ -562,7 +675,6 @@ fun ImageScreen() {
                             }
                         }
                     }
-
                     else -> {
                         LazyVerticalGrid(
                             columns = GridCells.Fixed(2),
@@ -570,11 +682,12 @@ fun ImageScreen() {
                             verticalArrangement = Arrangement.spacedBy(12.dp),
                             modifier = Modifier.heightIn(max = 500.dp)
                         ) {
-                            items(photoTimes) { time ->
-                                PhotoCard(
-                                    time = time,
-                                    formattedTime = formatDateTime(time),
-                                    onClick = { openPhoto(time) })
+                            items(photoItems) { photo ->
+                                PhotoCardWithRealImage(
+                                    photoUrl = photo.url,
+                                    formattedTime = formatDateTime(photo.time),
+                                    onClick = { openPhoto(photo.url, photo.time) }
+                                )
                             }
                         }
                     }
@@ -760,21 +873,42 @@ private fun ImageCard(content: @Composable () -> Unit) {
 }
 
 @Composable
-fun PhotoCard(time: String, formattedTime: String, onClick: () -> Unit) {
+fun PhotoCardWithRealImage(photoUrl: String, formattedTime: String, onClick: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth().aspectRatio(1f).clickable { onClick() },
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(1f)
+            .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.95f)),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Icon(painterResource(R.drawable.ic_image_placeholder), "Photo", modifier = Modifier.size(48.dp), tint = Color(0xFF4CAF50))
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(formattedTime, fontSize = 12.sp, color = Color.Gray, textAlign = TextAlign.Center, maxLines = 2)
+        Box(modifier = Modifier.fillMaxSize()) {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(photoUrl)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = "Plant photo",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter)
+                    .background(Color.Black.copy(alpha = 0.6f))
+                    .padding(8.dp)
+            ) {
+                Text(
+                    text = formattedTime,
+                    fontSize = 11.sp,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
     }
 }

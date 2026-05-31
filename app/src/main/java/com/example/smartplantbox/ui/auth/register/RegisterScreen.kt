@@ -69,6 +69,7 @@ fun RegisterScreen(
     val iUnderstandText = stringResource(R.string.i_understand)
 
     val errorPasswordMin8NoSpaces = stringResource(R.string.error_password_min_8_no_spaces)
+    val errorPasswordNeedDigit = stringResource(R.string.error_password_need_digit)
 
     val errorFullNameRequired = stringResource(R.string.error_full_name_required)
     val errorFullNameMax25 = stringResource(R.string.error_full_name_max_25)
@@ -244,7 +245,7 @@ fun RegisterScreen(
 
             OutlinedTextField(
                 value = registerState.fullName,
-                onValueChange = { authViewModel.updateRegisterFullName(it) },
+                onValueChange = { authViewModel.updateRegisterFullName(it, context) },
                 label = { Text(fullNameHint) },
                 leadingIcon = { Icon(Icons.Default.Person, personIconDesc, tint = Color(0xFF4CAF50)) },
                 modifier = Modifier.fillMaxWidth(),
@@ -252,13 +253,8 @@ fun RegisterScreen(
                 singleLine = true,
                 isError = registerState.fullNameError != null,
                 supportingText = {
-                    when (registerState.fullNameError) {
-                        "Full name is required" -> Text(errorFullNameRequired, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
-                        "Full name must not exceed 25 characters" -> Text(errorFullNameMax25, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
-                        "Full name can only contain letters and spaces" -> Text(errorFullNameInvalid, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
-                        "Name contains forbidden words" -> Text(errorFullNameForbidden, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
-                        "Name contains invalid characters" -> Text(errorFullNameInvalidChars, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
-                        else -> {}
+                    if (registerState.fullNameError != null) {
+                        Text(registerState.fullNameError!!, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
                     }
                 },
                 enabled = !registerState.isLoading,
@@ -273,7 +269,7 @@ fun RegisterScreen(
 
             OutlinedTextField(
                 value = registerState.email,
-                onValueChange = { authViewModel.updateRegisterEmail(it) },
+                onValueChange = { authViewModel.updateRegisterEmail(it, context) },
                 label = { Text(emailHint) },
                 leadingIcon = { Icon(Icons.Default.Email, emailIconDesc, tint = Color(0xFF4CAF50)) },
                 modifier = Modifier.fillMaxWidth(),
@@ -282,14 +278,8 @@ fun RegisterScreen(
                 singleLine = true,
                 isError = registerState.emailError != null,
                 supportingText = {
-                    when (registerState.emailError) {
-                        "Email is required" -> Text(errorEmailRequired, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
-                        "Email must be @gmail.com" -> Text(errorEmailInvalidDomain, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
-                        "Email local part cannot be empty" -> Text(errorEmailEmptyLocal, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
-                        "Email local part must not exceed 25 characters" -> Text(errorEmailLocalMax25, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
-                        "Email can only contain letters, numbers, and . _ -" -> Text(errorEmailInvalidFormat, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
-                        "Email contains forbidden words" -> Text(errorEmailForbidden, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
-                        else -> {}
+                    if (registerState.emailError != null) {
+                        Text(registerState.emailError!!, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
                     }
                 },
                 enabled = !registerState.isLoading,
@@ -305,7 +295,7 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = registerState.password,
                 onValueChange = {
-                    authViewModel.updateRegisterPassword(filterPassword(it))
+                    authViewModel.updateRegisterPassword(filterPassword(it), context)
                     confirmPasswordTouched = true
                 },
                 label = { Text(passwordHint) },
@@ -326,12 +316,10 @@ fun RegisterScreen(
                 singleLine = true,
                 isError = registerState.passwordError != null,
                 supportingText = {
-                    when (registerState.passwordError) {
-                        "Password is required" -> Text(errorPasswordRequired, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
-                        "Password must be at least 8 characters" -> Text(errorPasswordMin8, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
-                        "Password must not exceed 25 characters" -> Text(errorPasswordMax25, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
-                        "Password contains forbidden words" -> Text(errorPasswordForbidden, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
-                        else -> Text(errorPasswordMin8NoSpaces, fontSize = 10.sp, color = Color.Gray)
+                    if (registerState.passwordError != null) {
+                        Text(registerState.passwordError!!, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                    } else {
+                        Text(errorPasswordMin8NoSpaces, fontSize = 10.sp, color = Color.Gray)
                     }
                 },
                 enabled = !registerState.isLoading,
@@ -347,7 +335,7 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = registerState.confirmPassword,
                 onValueChange = {
-                    authViewModel.updateRegisterConfirmPassword(filterPassword(it))
+                    authViewModel.updateRegisterConfirmPassword(filterPassword(it), context)
                     confirmPasswordTouched = true
                 },
                 label = { Text(confirmPasswordHint) },
@@ -369,9 +357,7 @@ fun RegisterScreen(
                 isError = registerState.confirmPasswordError != null && confirmPasswordTouched,
                 supportingText = {
                     if (registerState.confirmPasswordError != null && confirmPasswordTouched) {
-                        val msg = if (registerState.confirmPasswordError == "Passwords do not match")
-                            errorPasswordsDoNotMatch else errorConfirmRequired
-                        Text(msg, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                        Text(registerState.confirmPasswordError!!, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
                     } else {
                         Text(confirmYourPasswordHint, fontSize = 10.sp, color = Color.Gray)
                     }

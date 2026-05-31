@@ -83,6 +83,7 @@
     <string name="hide_password">Ukryj hasło</string>
     <string name="show_password">Pokaż hasło</string>
     <string name="back_button">Wstecz</string>
+    <string name="error_password_need_digit">Hasło musi zawierać co najmniej jedną cyfrę</string>
 
     <!-- Terms of Use Dialog -->
     <string name="terms_of_use_title">Warunki użytkowania</string>

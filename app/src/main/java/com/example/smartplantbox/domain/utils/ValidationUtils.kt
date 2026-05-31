@@ -12,36 +12,39 @@ object ValidationUtils {
         "'", "\"", ";", "--", "/*", "*/", "=", ">", "<", "(", ")"
     )
     private val allowedDomains = listOf("@gmail.com",)
+
     fun containsSqlInjection(input: String): Boolean {
         val lowerInput = input.lowercase()
         return sqlBlacklist.any { lowerInput.contains(it) }
     }
+
     fun containsDangerousChars(input: String): Boolean {
         return dangerousChars.any { input.contains(it) }
     }
+
     fun validateFullName(name: String): String? {
         return when {
-            name.isBlank() -> "Full name is required"
-            name.length > 25 -> "Full name must not exceed 25 characters"
-            !name.all { it.isLetter() || it.isWhitespace() } -> "Full name can only contain letters and spaces"
-            containsSqlInjection(name) -> "Name contains forbidden words"
-            containsDangerousChars(name) -> "Name contains invalid characters"
+            name.isBlank() -> "full_name_required"
+            name.length > 25 -> "full_name_max_25"
+            !name.all { it.isLetter() || it.isWhitespace() } -> "full_name_invalid"
+            containsSqlInjection(name) -> "full_name_forbidden"
+            containsDangerousChars(name) -> "full_name_invalid_chars"
             else -> null
         }
     }
+
     fun validateEmail(email: String): String? {
         return when {
-            email.isBlank() -> "Email is required"
-            !allowedDomains.any { email.endsWith(it) } -> "Email must be @gmail.com"
+            email.isBlank() -> "email_required"
+            !allowedDomains.any { email.endsWith(it) } -> "email_invalid_domain"
             else -> {
-                val domain = allowedDomains.find { email.endsWith(it) } ?: return "Email must be valid"
+                val domain = allowedDomains.find { email.endsWith(it) } ?: return "email_invalid_domain"
                 val localPart = email.substringBefore(domain)
                 when {
-                    localPart.isBlank() -> "Email local part cannot be empty"
-                    localPart.length > 25 -> "Email local part must not exceed 25 characters"
-                    !localPart.all { it.isLetterOrDigit() || it == '.' || it == '_' || it == '-' } ->
-                        "Email can only contain letters, numbers, and . _ -"
-                    containsSqlInjection(localPart) -> "Email contains forbidden words"
+                    localPart.isBlank() -> "email_empty_local"
+                    localPart.length > 25 -> "email_local_max_25"
+                    !localPart.all { it.isLetterOrDigit() || it == '.' || it == '_' || it == '-' } -> "email_invalid_format"
+                    containsSqlInjection(localPart) -> "email_forbidden"
                     else -> null
                 }
             }
@@ -50,17 +53,18 @@ object ValidationUtils {
 
     fun validatePassword(password: String): String? {
         return when {
-            password.isBlank() -> "Password is required"
-            password.length < 8 -> "Password must be at least 8 characters"
-            password.length > 25 -> "Password must not exceed 25 characters"
-            containsSqlInjection(password) -> "Password contains forbidden words"
+            password.isBlank() -> "password_required"
+            password.length < 8 -> "password_min_8"
+            password.length > 25 -> "password_max_25"
+            !password.any { it.isDigit() } -> "password_need_digit"
+            containsSqlInjection(password) -> "password_forbidden"
             else -> null
         }
     }
 
     fun validateConfirmPassword(password: String, confirmPassword: String): String? {
         return if (password != confirmPassword) {
-            "Passwords do not match"
+            "passwords_do_not_match"
         } else null
     }
 }

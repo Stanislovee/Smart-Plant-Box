@@ -83,6 +83,7 @@
     <string name="hide_password">Hide password</string>
     <string name="show_password">Show password</string>
     <string name="back_button">Back</string>
+    <string name="error_password_need_digit">Password must contain at least one digit</string>
 
     <!-- Terms of Use Dialog -->
     <string name="terms_of_use_title">Terms of Use</string>

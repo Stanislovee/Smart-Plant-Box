@@ -65,7 +65,7 @@ fun LoginScreen(
     }
 
     LaunchedEffect(authResult) {
-        when (val result = authResult) {
+        when (authResult) {
             is AuthResult.Error -> {
                 authViewModel.clearAuthResult()
             }
@@ -142,7 +142,7 @@ fun LoginScreen(
 
             OutlinedTextField(
                 value = loginState.email,
-                onValueChange = { authViewModel.updateLoginEmail(it) },
+                onValueChange = { authViewModel.updateLoginEmail(it, context) },
                 label = { Text(emailHint, color = Color.Black) },
                 leadingIcon = {
                     Icon(
@@ -156,7 +156,7 @@ fun LoginScreen(
                 singleLine = true,
                 isError = loginState.emailError != null,
                 supportingText = loginState.emailError?.let {
-                    { Text(stringResource(R.string.error_email_invalid_domain), color = MaterialTheme.colorScheme.error, fontSize = 12.sp) }
+                    { Text(loginState.emailError!!, color = MaterialTheme.colorScheme.error, fontSize = 12.sp) }
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 enabled = !loginState.isLoading,
@@ -175,7 +175,7 @@ fun LoginScreen(
                 value = loginState.password,
                 onValueChange = {
                     val filtered = filterPassword(it)
-                    authViewModel.updateLoginPassword(filtered)
+                    authViewModel.updateLoginPassword(filtered, context)
                 },
                 label = { Text(passwordHint, color = Color.Black) },
                 leadingIcon = {
@@ -207,9 +207,9 @@ fun LoginScreen(
                 singleLine = true,
                 isError = loginState.passwordError != null,
                 supportingText = loginState.passwordError?.let {
-                    { Text(stringResource(R.string.error_password_min_8_no_spaces), color = MaterialTheme.colorScheme.error, fontSize = 12.sp) }
+                    { Text(loginState.passwordError!!, color = MaterialTheme.colorScheme.error, fontSize = 12.sp) }
                 } ?: {
-                    Text(noSpacesAllowedText, fontSize = 10.sp, color = Color.Black)
+                    Text(noSpacesAllowedText, fontSize = 10.sp, color = Color.Gray)
                 },
                 enabled = !loginState.isLoading,
                 colors = OutlinedTextFieldDefaults.colors(

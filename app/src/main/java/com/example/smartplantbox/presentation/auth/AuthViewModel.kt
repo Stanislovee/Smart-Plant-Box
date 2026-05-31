@@ -81,19 +81,23 @@ class AuthViewModel : ViewModel() {
         _loginUiState.value = _loginUiState.value.copy(rememberMe = rememberMe)
     }
 
-    fun updateLoginEmail(email: String) {
+    fun updateLoginEmail(email: String, context: Context) {
+        val errorCode = ValidationUtils.validateEmail(email)
+        val errorText = errorCode?.let { getLocalizedValidationError(it, context) }
         _loginUiState.value = _loginUiState.value.copy(
             email = email,
-            emailError = ValidationUtils.validateEmail(email),
+            emailError = errorText,
             errorMessage = null
         )
         validateLoginForm()
     }
 
-    fun updateLoginPassword(password: String) {
+    fun updateLoginPassword(password: String, context: Context) {
+        val errorCode = ValidationUtils.validatePassword(password)
+        val errorText = errorCode?.let { getLocalizedValidationError(it, context) }
         _loginUiState.value = _loginUiState.value.copy(
             password = password,
-            passwordError = ValidationUtils.validatePassword(password),
+            passwordError = errorText,
             errorMessage = null
         )
         validateLoginForm()
@@ -107,51 +111,54 @@ class AuthViewModel : ViewModel() {
         )
     }
 
-    fun updateRegisterFullName(fullName: String) {
+    fun updateRegisterFullName(fullName: String, context: Context) {
+        val errorCode = ValidationUtils.validateFullName(fullName)
+        val errorText = errorCode?.let { getLocalizedValidationError(it, context) }
         _registerUiState.value = _registerUiState.value.copy(
             fullName = fullName,
-            fullNameError = ValidationUtils.validateFullName(fullName),
+            fullNameError = errorText,
             errorMessage = null, successMessage = null
         )
         validateRegisterForm()
     }
 
-    fun updateRegisterEmail(email: String) {
+    fun updateRegisterEmail(email: String, context: Context) {
+        val errorCode = ValidationUtils.validateEmail(email)
+        val errorText = errorCode?.let { getLocalizedValidationError(it, context) }
         _registerUiState.value = _registerUiState.value.copy(
             email = email,
-            emailError = ValidationUtils.validateEmail(email),
+            emailError = errorText,
             errorMessage = null, successMessage = null
         )
         validateRegisterForm()
     }
 
-    fun updateRegisterPassword(password: String) {
+    fun updateRegisterPassword(password: String, context: Context) {
+        val errorCode = ValidationUtils.validatePassword(password)
+        val errorText = errorCode?.let { getLocalizedValidationError(it, context) }
         val currentState = _registerUiState.value
         _registerUiState.value = currentState.copy(
             password = password,
-            passwordError = ValidationUtils.validatePassword(password),
-            confirmPasswordError = validateConfirmPasswordMatch(password, currentState.confirmPassword),
+            passwordError = errorText,
+            confirmPasswordError = if (currentState.confirmPassword.isNotEmpty()) {
+                val confirmErrorCode = ValidationUtils.validateConfirmPassword(password, currentState.confirmPassword)
+                confirmErrorCode?.let { getLocalizedValidationError(it, context) }
+            } else null,
             errorMessage = null, successMessage = null
         )
         validateRegisterForm()
     }
 
-    fun updateRegisterConfirmPassword(confirmPassword: String) {
+    fun updateRegisterConfirmPassword(confirmPassword: String, context: Context) {
         val currentState = _registerUiState.value
+        val errorCode = ValidationUtils.validateConfirmPassword(currentState.password, confirmPassword)
+        val errorText = errorCode?.let { getLocalizedValidationError(it, context) }
         _registerUiState.value = currentState.copy(
             confirmPassword = confirmPassword,
-            confirmPasswordError = validateConfirmPasswordMatch(currentState.password, confirmPassword),
+            confirmPasswordError = errorText,
             errorMessage = null, successMessage = null
         )
         validateRegisterForm()
-    }
-
-    private fun validateConfirmPasswordMatch(password: String, confirmPassword: String): String? {
-        return if (password != confirmPassword) {
-            "Passwords do not match"
-        } else {
-            ValidationUtils.validateConfirmPassword(password, confirmPassword)
-        }
     }
 
     fun updateAgreeToTerms(agree: Boolean) {
@@ -173,7 +180,6 @@ class AuthViewModel : ViewModel() {
         )
     }
 
-    // Actions
     fun loginUser(context: Context, onSuccess: () -> Unit) {
         val state = _loginUiState.value
         _authResult.value = AuthResult.Loading
@@ -197,20 +203,20 @@ class AuthViewModel : ViewModel() {
                         onSuccess()
                     }
                     401 -> {
-                        val errorMsg = getLocalizedErrorMessage(context, "incorrect_password")
+                        val errorMsg = context.getString(R.string.error_incorrect_password)
                         setLoginError(errorMsg)
                     }
                     404 -> {
-                        val errorMsg = getLocalizedErrorMessage(context, "user_not_found")
+                        val errorMsg = context.getString(R.string.error_user_not_found)
                         setLoginError(errorMsg)
                     }
                     else -> {
-                        val errorMsg = getLocalizedErrorMessage(context, "login_failed", response.message ?: "Status $status")
+                        val errorMsg = context.getString(R.string.error_login_failed) + ": " + (response.message ?: "Status $status")
                         setLoginError(errorMsg)
                     }
                 }
             } catch (e: Exception) {
-                val errorMsg = getLocalizedErrorMessage(context, "network_error", e.message ?: "")
+                val errorMsg = context.getString(R.string.error_network) + ": " + (e.message ?: "")
                 _loginUiState.value = state.copy(isLoading = false, errorMessage = errorMsg)
                 _authResult.value = AuthResult.Error(errorMsg)
             }
@@ -234,7 +240,7 @@ class AuthViewModel : ViewModel() {
 
                 when (status) {
                     201 -> {
-                        val successMsg = getLocalizedErrorMessage(context, "registration_success")
+                        val successMsg = context.getString(R.string.registration_success)
                         _registerUiState.value = _registerUiState.value.copy(
                             successMessage = successMsg,
                             errorMessage = null
@@ -243,20 +249,20 @@ class AuthViewModel : ViewModel() {
                         onSuccess()
                     }
                     409 -> {
-                        val errorMsg = getLocalizedErrorMessage(context, "email_exists")
+                        val errorMsg = context.getString(R.string.error_email_exists)
                         setRegisterError(errorMsg)
                     }
                     400 -> {
-                        val errorMsg = getLocalizedErrorMessage(context, "fields_required")
+                        val errorMsg = context.getString(R.string.error_fields_required)
                         setRegisterError(errorMsg)
                     }
                     else -> {
-                        val errorMsg = getLocalizedErrorMessage(context, "registration_failed", response.message ?: "Status $status")
+                        val errorMsg = context.getString(R.string.error_registration_failed) + ": " + (response.message ?: "Status $status")
                         setRegisterError(errorMsg)
                     }
                 }
             } catch (e: Exception) {
-                val errorMsg = getLocalizedErrorMessage(context, "network_error", e.message ?: "")
+                val errorMsg = context.getString(R.string.error_network) + ": " + (e.message ?: "")
                 _registerUiState.value = state.copy(isLoading = false, errorMessage = errorMsg, successMessage = null)
                 _authResult.value = AuthResult.Error(errorMsg)
             }
@@ -281,17 +287,30 @@ class AuthViewModel : ViewModel() {
         _registerUiState.value = _registerUiState.value.copy(errorMessage = null, successMessage = null)
     }
 
-    private fun getLocalizedErrorMessage(context: Context, errorKey: String, detail: String = ""): String {
-        return when (errorKey) {
-            "incorrect_password" -> context.getString(R.string.error_incorrect_password)
-            "user_not_found" -> context.getString(R.string.error_user_not_found)
-            "network_error" -> context.getString(R.string.error_network)
-            "email_exists" -> context.getString(R.string.error_email_exists)
-            "fields_required" -> context.getString(R.string.error_fields_required)
-            "registration_failed" -> context.getString(R.string.error_registration_failed)
-            "login_failed" -> context.getString(R.string.error_login_failed)
-            "registration_success" -> context.getString(R.string.registration_success)
-            else -> detail
+    private fun getLocalizedValidationError(errorCode: String, context: Context): String {
+        return when (errorCode) {
+            // Full name errors
+            "full_name_required" -> context.getString(R.string.error_full_name_required)
+            "full_name_max_25" -> context.getString(R.string.error_full_name_max_25)
+            "full_name_invalid" -> context.getString(R.string.error_full_name_invalid)
+            "full_name_forbidden" -> context.getString(R.string.error_full_name_forbidden)
+            "full_name_invalid_chars" -> context.getString(R.string.error_full_name_invalid_chars)
+            // Email errors
+            "email_required" -> context.getString(R.string.error_email_required)
+            "email_invalid_domain" -> context.getString(R.string.error_email_invalid_domain)
+            "email_empty_local" -> context.getString(R.string.error_email_empty_local)
+            "email_local_max_25" -> context.getString(R.string.error_email_local_max_25)
+            "email_invalid_format" -> context.getString(R.string.error_email_invalid_format)
+            "email_forbidden" -> context.getString(R.string.error_email_forbidden)
+            // Password errors
+            "password_required" -> context.getString(R.string.error_password_required)
+            "password_min_8" -> context.getString(R.string.error_password_min_8)
+            "password_max_25" -> context.getString(R.string.error_password_max_25)
+            "password_need_digit" -> context.getString(R.string.error_password_need_digit)
+            "password_forbidden" -> context.getString(R.string.error_password_forbidden)
+            // Confirm password
+            "passwords_do_not_match" -> context.getString(R.string.error_passwords_do_not_match)
+            else -> errorCode
         }
     }
 }
